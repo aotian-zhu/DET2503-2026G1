@@ -19,7 +19,7 @@ Introduce the product idea and explain why it matters.
 
 ### Suggested Visuals
 - One central mobile mockup
-- A sticky-note style concept summary
+- A compact concept summary card
 - User icons for volunteers, shift leaders, and arena staff
 
 ## Page 2 - Scenarios and Features
@@ -41,7 +41,7 @@ Show how the product works in practice.
 ### Suggested Visuals
 - Journey line or flowchart
 - Small feature cards with icons
-- Labels connecting features to GPS, map, camera, QR, notifications, and offline support
+- Labels connecting features to GPS, OpenStreetMap, camera, QR, notifications, and offline support
 
 ## Page 3 - Data, Ecosystem, and Feasibility
 

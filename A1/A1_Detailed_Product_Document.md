@@ -69,7 +69,7 @@ Products such as Better Impact and Volgistics show how volunteer roles, schedule
 **Lesson:** Arena Companion should borrow structure, but simplify execution for mobile use during live operations.
 
 ### Navigation and Mapping Tools
-Google Maps and similar services show how wayfinding can be made intuitive through live location, markers, and route context.
+OpenStreetMap-based mobile map solutions show how wayfinding can be made intuitive through live location, markers, and route context without relying on a Google Maps dependency.
 
 **Lesson:** maps should not be included as decoration. They should solve specific arena-related navigation problems, such as finding entrances, meeting points, checkpoints, and task locations.
 
@@ -239,7 +239,7 @@ For a semester project, the most balanced solution is a mobile-first architectur
 - **Local database:** Room
 - **Background sync:** WorkManager
 - **Login state storage:** DataStore or EncryptedSharedPreferences
-- **Maps and location:** Google Maps SDK and FusedLocationProvider
+- **Maps and location:** OpenStreetMap with an Android-compatible OSM library such as osmdroid, plus Android location services
 - **QR scanning:** ML Kit or ZXing
 - **Push notifications:** Firebase Cloud Messaging (FCM)
 

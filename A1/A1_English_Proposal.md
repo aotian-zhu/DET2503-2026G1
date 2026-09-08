@@ -26,7 +26,7 @@ The purpose of the app is to improve coordination, reduce uncertainty, and make 
 Several existing platforms provide inspiration for this solution:
 
 - Volunteer management systems such as Better Impact and Volgistics show how scheduling, communication, and role assignment can be organized.
-- Navigation apps such as Google Maps demonstrate clear route guidance and location awareness.
+- OpenStreetMap-based navigation solutions demonstrate clear route guidance and location awareness without adding a Google Maps dependency.
 - Workforce apps used in logistics or field service show the value of task lists, status updates, and check-in workflows.
 - QR-based ticketing and access systems illustrate how fast scanning can support check-in and verification tasks.
 
