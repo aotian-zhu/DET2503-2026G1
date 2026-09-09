@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arena Companion - UI Concept Deck</title>
+  <style>
+    @page { size: A4 portrait; margin: 10mm; }
+
+    :root {
+      --bg: #edf2f7;
+      --page: #f7fafc;
+      --surface: #ffffff;
+      --surface-2: #f4f7fb;
+      --ink: #1b2430;
+      --muted: #69788c;
+      --line: #d8e2ec;
+      --blue: #2f6feb;
+      --blue-soft: #ebf2ff;
+      --green: #2f8f68;
+      --green-soft: #eaf7f1;
+      --orange: #cc7a14;
+      --orange-soft: #fff2df;
+      --purple: #6f59cf;
+      --purple-soft: #f1edff;
+      --pink: #c95d7c;
+      --pink-soft: #fceef4;
+      --shadow: 0 16px 34px rgba(27, 36, 48, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .document {
+      width: 210mm;
+      margin: 0 auto;
+      background: var(--page);
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 8mm;
+      background:
+        radial-gradient(circle at top right, rgba(47,111,235,0.08), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(111,89,207,0.05), transparent 18%),
+        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.94));
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+    }
+
+    .page:last-child { page-break-after: auto; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand .school {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .brand .sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .page-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(255,255,255,0.84);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .title-card {
+      background: linear-gradient(135deg, #0f2144, #28539a);
+      color: white;
+      border-radius: 24px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .title-card::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -60px;
+      top: -90px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .title-card h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.03;
+      letter-spacing: -0.02em;
+    }
+
+    .title-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.45;
+      max-width: 460px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .fact {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .fact .k {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .fact .v {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.28;
+    }
+
+    .section {
+      background: rgba(255,255,255,0.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 19px;
+      line-height: 1.14;
+    }
+
+    .section h3 {
+      margin: 0 0 6px;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .blue-soft { background: var(--blue-soft); color: var(--blue); }
+    .green-soft { background: var(--green-soft); color: var(--green); }
+    .orange-soft { background: var(--orange-soft); color: var(--orange); }
+    .purple-soft { background: var(--purple-soft); color: var(--purple); }
+    .pink-soft { background: var(--pink-soft); color: var(--pink); }
+    .blue-text { color: var(--blue); }
+    .green-text { color: var(--green); }
+    .orange-text { color: var(--orange); }
+    .purple-text { color: var(--purple); }
+    .pink-text { color: var(--pink); }
+    .teal-text { color: #18979f; }
+
+    p, li {
+      margin: 0;
+      font-size: 11.4px;
+      line-height: 1.36;
+      color: var(--ink);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 10.6px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .phone-showcase {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 235px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #fbfcfe, #f2f6fb);
+      border: 3px solid #192330;
+      border-radius: 36px;
+      padding: 10px 10px 12px;
+      box-shadow: 0 22px 40px rgba(25, 35, 48, 0.16);
+      position: relative;
+    }
+
+    .phone::after {
+      content: "";
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 84px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(25, 35, 48, 0.14);
+    }
+
+    .phone .notch {
+      width: 92px;
+      height: 10px;
+      border-radius: 999px;
+      background: #c7d3e1;
+      margin: 0 auto 8px;
+    }
+
+    .screen {
+      border-radius: 24px;
+      background: white;
+      border: 1px solid #dbe4ee;
+      padding: 10px;
+      min-height: 384px;
+    }
+
+    .screen.small {
+      min-height: 230px;
+    }
+
+    .statusbar,
+    .screen-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .statusbar {
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 700;
+      background: var(--blue-soft);
+      color: var(--blue);
+      border: 1px solid #d8e5ff;
+    }
+
+    .hero-card {
+      border-radius: 18px;
+      background: linear-gradient(135deg, #edf4ff, #f7faff);
+      border: 1px solid #dce7f4;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .hero-card h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+    }
+
+    .hero-card p {
+      font-size: 10.8px;
+      color: var(--muted);
+      line-height: 1.32;
+    }
+
+    .map-box {
+      height: 110px;
+      border-radius: 18px;
+      border: 1px solid #dce5ee;
+      background:
+        linear-gradient(135deg, #eff4f8, #f9fbfd),
+        linear-gradient(90deg, transparent 47%, #dde5ec 47%, #dde5ec 53%, transparent 53%),
+        linear-gradient(transparent 47%, #dde5ec 47%, #dde5ec 53%, transparent 53%);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .river {
+      position: absolute;
+      right: -16px;
+      bottom: -8px;
+      width: 110px;
+      height: 70px;
+      border-radius: 56% 44% 62% 38%;
+      background: rgba(182, 217, 249, 0.8);
+      transform: rotate(-10deg);
+    }
+
+    .pin,
+    .user-dot {
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .pin {
+      width: 16px;
+      height: 16px;
+      box-shadow: 0 4px 8px rgba(27,36,48,0.1);
+    }
+
+    .pin.red { left: 20px; top: 30px; background: #e65d53; }
+    .pin.blue { right: 26px; top: 34px; background: #3f87dd; }
+    .pin.green { left: 86px; top: 16px; background: #3f9b67; }
+
+    .user-dot {
+      left: 76px;
+      top: 54px;
+      width: 22px;
+      height: 22px;
+      background: #2f6feb;
+      border: 5px solid white;
+      box-shadow: 0 0 0 10px rgba(47,111,235,0.14);
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #edf1f5;
+      font-size: 11px;
+    }
+
+    .row:last-child { border-bottom: none; }
+
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .nav div {
+      padding: 8px 4px;
+      border-radius: 12px;
+      background: #f7f9fc;
+      border: 1px solid #e0e7ef;
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .nav .active {
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .callouts {
+      display: grid;
+      gap: 8px;
+    }
+
+    .callout {
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      padding: 10px;
+      min-height: 84px;
+    }
+
+    .callout .n {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      background: var(--blue);
+      margin-bottom: 6px;
+    }
+
+    .callout h4 {
+      margin: 0 0 4px;
+      font-size: 12.5px;
+    }
+
+    .callout p {
+      font-size: 10.8px;
+      line-height: 1.3;
+      color: var(--muted);
+    }
+
+    .three-phones {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .mini-phone {
+      width: 100%;
+      max-width: 170px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #fbfcfe, #f2f6fb);
+      border: 2.5px solid #192330;
+      border-radius: 28px;
+      padding: 8px;
+      box-shadow: 0 16px 26px rgba(25, 35, 48, 0.12);
+    }
+
+    .mini-phone .notch {
+      width: 68px;
+      height: 8px;
+      border-radius: 999px;
+      background: #c7d3e1;
+      margin: 0 auto 6px;
+    }
+
+    .screen.compact {
+      min-height: 208px;
+      padding: 8px;
+      border-radius: 20px;
+    }
+
+    .half-phones {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      align-items: end;
+    }
+
+    .half-phone {
+      width: 100%;
+      max-width: 178px;
+      height: 188px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #fbfcfe, #f2f6fb);
+      border: 2.5px solid #192330;
+      border-top: none;
+      border-radius: 0 0 28px 28px;
+      padding: 0 8px 8px;
+      box-shadow: 0 14px 24px rgba(25, 35, 48, 0.12);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .half-phone .notch {
+      display: none;
+    }
+
+    .screen.peek {
+      min-height: 180px;
+      width: 100%;
+      padding: 8px;
+      border-radius: 0 0 20px 20px;
+      border-top: none;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background:
+        linear-gradient(180deg, #eef4fb 0%, #ffffff 44%);
+    }
+
+    .bottom-sheet {
+      margin-top: 8px;
+      background: linear-gradient(180deg, #ffffff, #f6f8fb);
+      border: 1px solid #dce5ee;
+      border-radius: 20px 20px 12px 12px;
+      padding: 10px 10px 14px;
+      box-shadow: 0 -8px 18px rgba(27, 36, 48, 0.08);
+    }
+
+    .sheet-handle {
+      width: 42px;
+      height: 4px;
+      border-radius: 999px;
+      background: #cdd7e3;
+      margin: 0 auto 8px;
+    }
+
+    .sheet-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .stack-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .stack-card {
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      padding: 10px;
+      min-height: 80px;
+    }
+
+    .stack-card h4 {
+      margin: 0 0 4px;
+      font-size: 12.5px;
+    }
+
+    .stack-card p {
+      font-size: 10.8px;
+      line-height: 1.3;
+      color: var(--muted);
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr 1.15fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .matrix > div {
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      font-size: 10.6px;
+      line-height: 1.28;
+    }
+
+    .matrix .head {
+      font-weight: 700;
+      background: #ebf1f8;
+    }
+
+    .entity-cloud,
+    .stack-cloud,
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .entity-cloud span,
+    .stack-cloud span,
+    .chip-row span {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: white;
+      font-size: 10.8px;
+      font-weight: 600;
+    }
+
+    .arch {
+      display: grid;
+      grid-template-columns: 1fr 44px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .arch-box {
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      padding: 10px;
+      min-height: 92px;
+    }
+
+    .arch-box h4 {
+      margin: 0 0 4px;
+      font-size: 12.5px;
+    }
+
+    .arch-box p {
+      font-size: 10.8px;
+      line-height: 1.3;
+      color: var(--muted);
+    }
+
+    .arrow {
+      text-align: center;
+      font-size: 24px;
+      color: #8b9ab0;
+      font-weight: 700;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .phase {
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      padding: 10px;
+      min-height: 96px;
+    }
+
+    .phase h4 {
+      margin: 0 0 4px;
+      font-size: 12.5px;
+    }
+
+    .phase p {
+      font-size: 10.8px;
+      line-height: 1.3;
+      color: var(--muted);
+    }
+
+    .scope-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .scope {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      border-radius: 14px;
+      padding: 10px;
+      min-height: 114px;
+    }
+
+    .risk h4, .slice h4, .scope h4 {
+      margin: 0 0 4px;
+      font-size: 12.5px;
+    }
+
+    .time-step {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .time-step .bubble {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin: 0 auto 7px;
+      background: white;
+      border: 2px solid currentColor;
+    }
+
+    .time-step h4 {
+      margin: 0 0 4px;
+      font-size: 12.5px;
+    }
+
+    .time-step p {
+      font-size: 10.8px;
+      color: var(--muted);
+    }
+
+    .slices {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .slice {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      border-radius: 14px;
+      padding: 10px;
+      min-height: 110px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .mini-note {
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      padding: 10px;
+      min-height: 76px;
+    }
+
+    .mini-note h4 {
+      margin: 0 0 4px;
+      font-size: 12px;
+    }
+
+    .mini-note p {
+      font-size: 10.3px;
+      line-height: 1.28;
+      color: var(--muted);
+    }
+
+    .dual-mini {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .list-card {
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      padding: 10px;
+      min-height: 108px;
+    }
+
+    .list-card h4 {
+      margin: 0 0 6px;
+      font-size: 12.5px;
+    }
+
+    .list-card ul {
+      padding-left: 16px;
+    }
+
+    .list-card li {
+      font-size: 10.4px;
+      line-height: 1.28;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .metric {
+      border-radius: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      padding: 10px;
+      min-height: 78px;
+    }
+
+    .metric .k {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric .v {
+      font-size: 11px;
+      line-height: 1.28;
+      font-weight: 700;
+    }
+
+    .roadmap-wide {
+      margin-top: 8px;
+    }
+
+    .roadmap-track {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding-top: 38px;
+    }
+
+    .roadmap-track::before {
+      content: "";
+      position: absolute;
+      left: 4%;
+      right: 4%;
+      top: 24px;
+      height: 4px;
+      border-radius: 999px;
+      background: #cfd8e6;
+    }
+
+    .road-step {
+      position: relative;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .road-dot {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: #f8fbff;
+      border: 4px solid currentColor;
+    }
+
+    .road-step h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      line-height: 1.1;
+    }
+
+    .road-step p {
+      font-size: 10.5px;
+      line-height: 1.32;
+      color: var(--muted);
+      max-width: 150px;
+      margin: 0 auto;
+    }
+
+    .footer {
+      position: absolute;
+      right: 8mm;
+      bottom: 6mm;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .page-four .section {
+      padding: 10px 12px;
+    }
+
+    .page-four .section h2 {
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .page-four .header {
+      margin-bottom: 6px;
+    }
+
+    .page-four .eyebrow {
+      padding: 3px 7px;
+      font-size: 9px;
+      margin-bottom: 6px;
+    }
+
+    .page-four .grid-2 {
+      gap: 8px;
+    }
+
+    .page-four .half-phones {
+      gap: 6px;
+    }
+
+    .page-four .half-phone {
+      height: 128px;
+      max-width: 142px;
+    }
+
+    .page-four .screen.peek {
+      min-height: 120px;
+      padding: 5px;
+    }
+
+    .page-four .row {
+      padding: 4px 0;
+      font-size: 9.8px;
+    }
+
+    .page-four .bottom-sheet {
+      padding: 6px 7px 8px;
+      margin-top: 4px;
+    }
+
+    .page-four .sheet-title {
+      font-size: 10px;
+      margin-bottom: 3px;
+    }
+
+    .page-four .screen-head {
+      font-size: 9px;
+    }
+
+    .page-four .badge {
+      padding: 3px 6px;
+      font-size: 8px;
+    }
+
+    .page-four .hero-card {
+      padding: 5px;
+      margin: 2px 0 0;
+    }
+
+    .page-four .hero-card h3 {
+      font-size: 10px;
+      margin-bottom: 1px;
+    }
+
+    .page-four p,
+    .page-four li,
+    .page-four .muted {
+      font-size: 9.8px;
+      line-height: 1.2;
+    }
+
+    .page-four .scope-grid,
+    .page-four .timeline,
+    .page-four .slices {
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .page-four .scope {
+      min-height: 86px;
+      padding: 7px;
+    }
+
+    .page-four .time-step .bubble {
+      width: 26px;
+      height: 26px;
+      margin-bottom: 4px;
+    }
+
+    .page-four .time-step h4,
+    .page-four .risk h4,
+    .page-four .slice h4,
+    .page-four .scope h4 {
+      font-size: 11.8px;
+    }
+
+    .page-four .time-step p,
+    .page-four .slice p,
+    .page-four .scope p,
+    .page-four li {
+      font-size: 10px;
+      line-height: 1.22;
+    }
+
+    .page-four .slice {
+      min-height: 78px;
+      padding: 7px;
+    }
+
+    .page-four .v2-roadmap-section {
+      padding: 14px 16px;
+    }
+
+    .page-four .v2-roadmap-section h2 {
+      font-size: 19px;
+      margin-bottom: 10px;
+    }
+
+    .page-four .v2-roadmap-section .eyebrow {
+      padding: 4px 8px;
+      font-size: 10px;
+      margin-bottom: 8px;
+    }
+
+    .page-four .v2-roadmap-section .timeline {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .page-four .v2-roadmap-section .timeline::before {
+      content: "";
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      top: 18px;
+      height: 2px;
+      background: linear-gradient(90deg, #d5deea, #c7d4e3);
+    }
+
+    .page-four .v2-roadmap-section .time-step {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .page-four .v2-roadmap-section .time-step .bubble {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin: 0 auto 7px;
+      background: white;
+      border: 2px solid currentColor;
+    }
+
+    .page-four .v2-roadmap-section .time-step h4 {
+      margin: 0 0 4px;
+      font-size: 12.5px;
+    }
+
+    .page-four .v2-roadmap-section .time-step p {
+      font-size: 10.8px;
+      line-height: 1.3;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="document">
+    <section class="page">
+      <div class="header">
+        <div class="brand">
+          <div class="school">UiT</div>
+          <div class="sub">Volunteer operations product concept</div>
+        </div>
+        <div class="page-tag">Page 1 / 4</div>
+      </div>
+
+      <div class="hero">
+        <div class="title-card">
+          <h1>Arena Companion</h1>
+          <p>
+            A mobile field assistant for volunteers working in and around event arenas.
+            The product is designed to make the next action obvious, reduce uncertainty,
+            and keep operational information useful even in weak network conditions.
+          </p>
+        </div>
+        <div class="facts">
+          <div class="fact">
+            <div class="k">Primary goal</div>
+            <div class="v">Reduce uncertainty during live volunteer work</div>
+          </div>
+          <div class="fact">
+            <div class="k">Main users</div>
+            <div class="v">Volunteers and shift leaders</div>
+          </div>
+          <div class="fact">
+            <div class="k">Platform</div>
+            <div class="v">Android mobile application</div>
+          </div>
+          <div class="fact">
+            <div class="k">Core lens</div>
+            <div class="v">UI should help action, not administration</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="eyebrow blue-soft">Home Screen Concept</div>
+        <h2>Main screen with annotated product meaning</h2>
+        <div class="phone-showcase">
+          <div class="phone">
+            <div class="notch"></div>
+            <div class="screen">
+              <div class="statusbar"><span>09:41</span><span>Wi-Fi 72%</span></div>
+              <div class="hero-card">
+                <h3>Hello, Emma</h3>
+                <p>Your next priority is to check in at Entrance B before the shift begins.</p>
+              </div>
+              <div class="map-box">
+                <div class="river"></div>
+                <div class="pin red"></div>
+                <div class="pin blue"></div>
+                <div class="pin green"></div>
+                <div class="user-dot"></div>
+              </div>
+              <div class="row"><span>Current shift</span><strong>Arena North</strong></div>
+              <div class="row"><span>Time</span><strong>10:00 - 16:00</strong></div>
+              <div class="row"><span>Next action</span><strong>Check in at Entrance B</strong></div>
+              <div class="row"><span>Status</span><strong>On duty</strong></div>
+              <div class="nav">
+                <div class="active">Home</div>
+                <div>Map</div>
+                <div>Tasks</div>
+                <div>Profile</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callouts">
+            <div class="callout">
+              <div class="n">1</div>
+              <h4>Current shift is visible immediately</h4>
+              <p>The user should not need to search for time, role, or assigned arena.</p>
+            </div>
+            <div class="callout">
+              <div class="n">2</div>
+              <h4>Map supports fast orientation</h4>
+              <p>The top area gives instant spatial context instead of long text instructions.</p>
+            </div>
+            <div class="callout">
+              <div class="n">3</div>
+              <h4>Next action is explicit</h4>
+              <p>The app reduces uncertainty by surfacing the single most important thing to do next.</p>
+            </div>
+            <div class="callout">
+              <div class="n">4</div>
+              <h4>Navigation stays small</h4>
+              <p>Only four main tabs are needed for the MVP: Home, Map, Tasks, and Profile.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:12px;">
+        <div class="eyebrow green-soft">User and context</div>
+        <h2>Who this product serves</h2>
+        <div class="chip-row">
+          <span>Volunteers need quick orientation and clear tasks</span>
+          <span>Shift leaders need structured check-ins and issue feedback</span>
+          <span>Arena staff influence live operational conditions</span>
+        </div>
+      </div>
+
+      <div class="footer">Arena Companion | UI-first product overview</div>
+    </section>
+
+    <section class="page page-four">
+      <div class="header">
+        <div class="brand">
+          <div class="school">UiT</div>
+          <div class="sub">Volunteer operations product concept</div>
+        </div>
+        <div class="page-tag">Page 2 / 4</div>
+      </div>
+
+      <div class="section">
+        <div class="eyebrow orange-soft">Interactive walkthrough</div>
+        <h2>What using the product feels like during one shift</h2>
+        <div class="half-phones">
+          <div class="half-phone">
+            <div class="notch"></div>
+            <div class="screen peek">
+              <div class="screen-head"><span>Task detail</span><span class="badge">Action</span></div>
+              <div class="hero-card" style="padding:9px; margin:8px 0 0;">
+                <h3 style="font-size:13px;">Entrance support</h3>
+                <p>Arrive before gate opening and keep the queue flowing.</p>
+              </div>
+              <div class="row"><span>Task</span><strong>Entrance support</strong></div>
+              <div class="row"><span>Area</span><strong>Entrance B</strong></div>
+              <div class="row"><span>Time</span><strong>09:55 arrival</strong></div>
+              <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-title"><span>Quick action</span><span class="badge">Tap</span></div>
+                <div class="row"><span>Primary</span><strong>Open map</strong></div>
+                <div class="row"><span>Secondary</span><strong>View check-in</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="half-phone">
+            <div class="notch"></div>
+            <div class="screen peek">
+              <div class="screen-head"><span>Check-in</span><span class="badge">QR</span></div>
+              <div class="hero-card" style="padding:9px; margin:8px 0 0;">
+                <h3 style="font-size:13px;">Checkpoint found</h3>
+                <p>Entrance B code detected for this assigned role.</p>
+              </div>
+              <div class="row"><span>Checkpoint</span><strong>Entrance B</strong></div>
+              <div class="row"><span>Scanner</span><strong>Ready</strong></div>
+              <div class="row"><span>Volunteer</span><strong>Emma Olsen</strong></div>
+              <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-title"><span>Code detected</span><span class="badge">Confirm</span></div>
+                <div class="row"><span>Status</span><strong>Ready to submit</strong></div>
+                <div class="row"><span>Action</span><strong>Confirm presence</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="half-phone">
+            <div class="notch"></div>
+            <div class="screen peek">
+              <div class="screen-head"><span>Report</span><span class="badge">Sync</span></div>
+              <div class="hero-card" style="padding:9px; margin:8px 0 0;">
+                <h3 style="font-size:13px;">Access issue</h3>
+                <p>Crowd pressure near Entrance B needs fast reporting.</p>
+              </div>
+              <div class="row"><span>Issue</span><strong>Access issue</strong></div>
+              <div class="row"><span>Location</span><strong>Entrance B</strong></div>
+              <div class="row"><span>Photo</span><strong>Attached</strong></div>
+              <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-title"><span>Saved locally</span><span class="badge">Offline</span></div>
+                <div class="row"><span>Upload state</span><strong>Queued</strong></div>
+                <div class="row"><span>User feedback</span><strong>Will sync later</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:8px;">
+        <div class="section">
+          <div class="eyebrow blue-soft">Why the flow works</div>
+          <h2>Three interaction principles</h2>
+          <div class="stack-cards">
+            <div class="stack-card">
+              <h4>Short path to action</h4>
+              <p>The app should help the user act with one or two taps, not browse through menus.</p>
+            </div>
+            <div class="stack-card">
+              <h4>Clear confirmation</h4>
+              <p>Check-in and reporting screens must always communicate whether the action succeeded.</p>
+            </div>
+            <div class="stack-card">
+              <h4>Strong feedback</h4>
+              <p>Weak connectivity is expected, so the interface must explain local save and sync status clearly.</p>
+            </div>
+            <div class="stack-card">
+              <h4>Field-friendly structure</h4>
+              <p>The user should always know the next task, current place, and reporting path.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="eyebrow purple-soft">MVP feature set</div>
+          <h2>What the first usable version must include</h2>
+          <div class="stack-cards">
+            <div class="stack-card">
+              <h4>Shift overview</h4>
+              <p>Time, role, assigned area, and immediate instructions.</p>
+            </div>
+            <div class="stack-card">
+              <h4>OpenStreetMap view</h4>
+              <p>Venue orientation with checkpoints, incidents, and current context.</p>
+            </div>
+            <div class="stack-card">
+              <h4>QR check-in</h4>
+              <p>Fast presence confirmation at checkpoints or task locations.</p>
+            </div>
+            <div class="stack-card">
+              <h4>Incident report</h4>
+              <p>Structured issue capture with location, category, and optional photo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:8px;">
+        <div class="eyebrow green-soft">System feedback</div>
+        <h2>What the interface should always communicate</h2>
+        <div class="mini-grid">
+          <div class="mini-note">
+            <h4>Action started</h4>
+            <p>The user can tell that the selected task or report flow has opened correctly.</p>
+          </div>
+          <div class="mini-note">
+            <h4>Confirmation ready</h4>
+            <p>Check-in states should clearly indicate when the app is ready for final confirmation.</p>
+          </div>
+          <div class="mini-note">
+            <h4>Saved offline</h4>
+            <p>Weak signal should never make the user wonder whether the report was lost.</p>
+          </div>
+          <div class="mini-note">
+            <h4>Synced later</h4>
+            <p>Background upload should resolve queued items without creating extra admin work.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">Arena Companion | Interactive flow and MVP interaction logic</div>
+    </section>
+
+    <section class="page">
+      <div class="header">
+        <div class="brand">
+          <div class="school">UiT</div>
+          <div class="sub">Volunteer operations product concept</div>
+        </div>
+        <div class="page-tag">Page 3 / 4</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <div class="eyebrow blue-soft">Data model</div>
+          <h2>Core entities the app depends on</h2>
+          <div class="entity-cloud">
+            <span>Volunteer</span>
+            <span>Role</span>
+            <span>Shift</span>
+            <span>Arena</span>
+            <span>Zone</span>
+            <span>Task</span>
+            <span>Check-in</span>
+            <span>Incident</span>
+            <span>Message</span>
+            <span>Location</span>
+          </div>
+          <div class="matrix">
+            <div class="head">Layer</div>
+            <div class="head">Stores</div>
+            <div class="head">Why</div>
+
+            <div>Backend</div>
+            <div>Identity, shifts, tasks, incidents, messages</div>
+            <div>Provides the shared operational source of truth.</div>
+
+            <div>Local device</div>
+            <div>Cached shifts, map state, queued reports, recent tasks</div>
+            <div>Maintains usability when connectivity is weak.</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="eyebrow green-soft">Technology stack</div>
+          <h2>Recommended implementation path</h2>
+          <div class="stack-cloud">
+            <span>Kotlin</span>
+            <span>Jetpack Compose</span>
+            <span>MVVM</span>
+            <span>Room</span>
+            <span>WorkManager</span>
+            <span>DataStore</span>
+            <span>Retrofit</span>
+            <span>OpenStreetMap</span>
+            <span>osmdroid</span>
+            <span>Android Location</span>
+            <span>ML Kit / ZXing</span>
+            <span>Supabase</span>
+            <span>PostgreSQL</span>
+          </div>
+          <p style="margin-top:10px;" class="muted">
+            This keeps the product Android-native, avoids a Google Maps dependency,
+            and still supports real authentication, structured data, QR flows, and offline behavior.
+          </p>
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:12px;">
+        <div class="eyebrow orange-soft">System structure</div>
+        <h2>How the mobile UI connects to the wider system</h2>
+        <div class="arch">
+          <div class="arch-box">
+            <h4>Mobile client</h4>
+            <p>Compose UI, task flows, map view, QR scan, incident form, local cache, and session state.</p>
+          </div>
+          <div class="arrow">&#8596;</div>
+          <div class="arch-box">
+            <h4>Backend services</h4>
+            <p>Authentication, volunteer identity, shifts, tasks, reports, messages, and media storage.</p>
+          </div>
+        </div>
+        <div class="arch" style="margin-top:8px;">
+          <div class="arch-box">
+            <h4>Offline layer</h4>
+            <p>Stores a working subset of data and pending actions for unstable network conditions.</p>
+          </div>
+          <div class="arrow">&#8594;</div>
+          <div class="arch-box">
+            <h4>Background sync</h4>
+            <p>Uploads queued actions later and keeps the user informed about local save vs synced state.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dual-mini">
+        <div class="section">
+          <div class="eyebrow purple-soft">Authentication</div>
+          <h2>Login and session handling</h2>
+          <div class="list-card">
+            <h4>Proposed flow</h4>
+            <ul>
+              <li>Volunteer signs in through backend authentication.</li>
+              <li>The app stores a session token locally instead of a raw password.</li>
+              <li>Shift data and recent tasks are cached after login for faster reuse.</li>
+              <li>Session state remains visible even when the network becomes unstable.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="eyebrow pink-soft">Constraints</div>
+          <h2>Technical realities already considered</h2>
+          <div class="list-card">
+            <h4>Design implications</h4>
+            <ul>
+              <li>No Google Maps dependency: OpenStreetMap-based rendering is preferred.</li>
+              <li>Battery and permission usage must stay reasonable during long shifts.</li>
+              <li>Offline-first handling matters because crowd-heavy venues weaken connectivity.</li>
+              <li>Camera, QR, and location features should support the task instead of slowing it down.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">Arena Companion | Data model, stack, and system architecture</div>
+    </section>
+
+    <section class="page">
+      <div class="header">
+        <div class="brand">
+          <div class="school">UiT</div>
+          <div class="sub">Volunteer operations product concept</div>
+        </div>
+        <div class="page-tag">Page 4 / 4</div>
+      </div>
+
+      <div class="section">
+        <div class="eyebrow purple-soft">MVP scope</div>
+        <h2>The first complete volunteer journey</h2>
+        <div class="half-phones">
+          <div class="half-phone">
+            <div class="notch"></div>
+            <div class="screen peek">
+              <div class="screen-head"><span>Home</span><span class="badge">MVP</span></div>
+              <div class="row"><span>Goal</span><strong>Know the shift</strong></div>
+              <div class="row"><span>Status</span><strong>On duty</strong></div>
+              <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-title"><span>Design focus</span><span class="badge">Clarity</span></div>
+                <div class="row"><span>User need</span><strong>What do I do next?</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="half-phone">
+            <div class="notch"></div>
+            <div class="screen peek">
+              <div class="screen-head"><span>Map + task</span><span class="badge">MVP</span></div>
+              <div class="row"><span>Goal</span><strong>Reach the right place</strong></div>
+              <div class="row"><span>Checkpoint</span><strong>Entrance B</strong></div>
+              <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-title"><span>Design focus</span><span class="badge">Orientation</span></div>
+                <div class="row"><span>User need</span><strong>Where should I go?</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="half-phone">
+            <div class="notch"></div>
+            <div class="screen peek">
+              <div class="screen-head"><span>Report</span><span class="badge">MVP</span></div>
+              <div class="row"><span>Goal</span><strong>Save and send issue</strong></div>
+              <div class="row"><span>State</span><strong>Saved locally</strong></div>
+              <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-title"><span>Design focus</span><span class="badge">Feedback</span></div>
+                <div class="row"><span>User need</span><strong>Was it recorded?</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:8px;">
+        <div class="section">
+          <div class="eyebrow blue-soft">Scope decisions</div>
+          <h2>What belongs in the first milestone</h2>
+          <div class="list-card">
+            <h4>Core MVP boundary</h4>
+            <ul>
+              <li>Show the current shift, role, and next action immediately.</li>
+              <li>Provide map-based orientation with OpenStreetMap support.</li>
+              <li>Allow QR check-in and a short structured reporting flow.</li>
+              <li>Preserve critical actions locally when the network is weak.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="eyebrow pink-soft">Open design questions</div>
+          <h2>What still needs product decisions</h2>
+          <ul>
+            <li>How much map detail is helpful before it becomes distracting?</li>
+            <li>Which incidents need the shortest reporting flow?</li>
+            <li>Should shift leaders use the same client or a lighter variant?</li>
+            <li>How much offline support is enough for the first usable prototype?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:12px; padding:14px 16px;">
+        <div class="eyebrow green-soft green-text" style="padding:4px 8px; font-size:10px; margin-bottom:8px;">Roadmap</div>
+        <h2 style="font-size:19px; margin:0 0 10px;">Product evolution roadmap</h2>
+        <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; position:relative; margin-top:10px;">
+          <div style="content:''; position:absolute; left:28px; right:28px; top:18px; height:2px; background:linear-gradient(90deg, #d5deea, #c7d4e3);"></div>
+          <div style="position:relative; z-index:1; text-align:center; color:#2f6feb;">
+            <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 7px; background:white; border:2px solid currentColor;"></div>
+            <h4 style="margin:0 0 4px; font-size:12.5px;">Discover</h4>
+            <p style="font-size:10.8px; line-height:1.3; color:#69788c; margin:0;">Clarify user needs, arena context, and the problem to solve</p>
+          </div>
+          <div style="position:relative; z-index:1; text-align:center; color:#2f8f68;">
+            <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 7px; background:white; border:2px solid currentColor;"></div>
+            <h4 style="margin:0 0 4px; font-size:12.5px;">Define</h4>
+            <p style="font-size:10.8px; line-height:1.3; color:#69788c; margin:0;">Shape flows, scope, interface structure, and MVP boundaries</p>
+          </div>
+          <div style="position:relative; z-index:1; text-align:center; color:#cc7a14;">
+            <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 7px; background:white; border:2px solid currentColor;"></div>
+            <h4 style="margin:0 0 4px; font-size:12.5px;">Prototype</h4>
+            <p style="font-size:10.8px; line-height:1.3; color:#69788c; margin:0;">Build the first Android flow for shift, map, and check-in</p>
+          </div>
+          <div style="position:relative; z-index:1; text-align:center; color:#6f59cf;">
+            <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 7px; background:white; border:2px solid currentColor;"></div>
+            <h4 style="margin:0 0 4px; font-size:12.5px;">Build</h4>
+            <p style="font-size:10.8px; line-height:1.3; color:#69788c; margin:0;">Add tasks, reporting, and clearer operational feedback</p>
+          </div>
+          <div style="position:relative; z-index:1; text-align:center; color:#c95d7c;">
+            <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 7px; background:white; border:2px solid currentColor;"></div>
+            <h4 style="margin:0 0 4px; font-size:12.5px;">Integrate</h4>
+            <p style="font-size:10.8px; line-height:1.3; color:#69788c; margin:0;">Improve offline behavior, sync logic, and backend connection</p>
+          </div>
+          <div style="position:relative; z-index:1; text-align:center; color:#18979f;">
+            <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 7px; background:white; border:2px solid currentColor;"></div>
+            <h4 style="margin:0 0 4px; font-size:12.5px;">Validate</h4>
+            <p style="font-size:10.8px; line-height:1.3; color:#69788c; margin:0;">Refine the full volunteer journey and confirm product usefulness</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">Arena Companion | MVP scope, product evolution, and open decisions</div>
+    </section>
+  </div>
+</body>
+</html>
