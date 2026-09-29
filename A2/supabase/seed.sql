@@ -113,6 +113,80 @@ begin
 end
 $$;
 
+do $$
+declare
+    volunteer_uuid uuid;
+begin
+    select id into volunteer_uuid
+    from auth.users
+    where lower(email) = lower('xuzhu7245@uit.no')
+    limit 1;
+
+    if volunteer_uuid is null then
+        raise exception 'Test user xuzhu7245@uit.no was not found in Authentication > Users';
+    end if;
+
+    insert into public.profiles (id, display_name, phone, assigned_function_ids)
+    values (
+        volunteer_uuid,
+        'Xu Zhu',
+        '',
+        array['guest-service', 'crowd-support']
+    )
+    on conflict (id) do update set
+        display_name = excluded.display_name,
+        assigned_function_ids = excluded.assigned_function_ids;
+
+    insert into public.locations (id, name, description, latitude, longitude, scenario_ids)
+    values
+        ('registration-desk', 'Registration Desk', 'Volunteer and participant registration area.', 59.911720, 10.758050, array['visitor-guidance']),
+        ('arena-section-b', 'Arena Section B', 'Upper seating and crowd assistance area.', 59.912350, 10.757650, array['crowd-support']),
+        ('accessible-entrance', 'Accessible Entrance', 'Step-free entrance for visitors requiring accessibility support.', 59.911300, 10.757600, array['visitor-guidance'])
+    on conflict (id) do update set
+        name = excluded.name,
+        description = excluded.description,
+        latitude = excluded.latitude,
+        longitude = excluded.longitude,
+        scenario_ids = excluded.scenario_ids;
+
+    insert into public.shifts (id, volunteer_id, title, start_time, end_time, meeting_point_id)
+    values ('shift-test-002', volunteer_uuid, 'Full Day Event Shift', '09:00', '17:00', 'registration-desk')
+    on conflict (id) do update set
+        volunteer_id = excluded.volunteer_id,
+        title = excluded.title,
+        start_time = excluded.start_time,
+        end_time = excluded.end_time,
+        meeting_point_id = excluded.meeting_point_id;
+
+    insert into public.tasks (
+        id, volunteer_id, title, details, location_id, latitude, longitude,
+        area, floor, scenario_id, required_permission_ids, due_time, status
+    )
+    values
+        ('task-test-101', volunteer_uuid, 'Set up the registration desk', 'Arrange name lists, badges and information sheets before registration opens.', 'registration-desk', 59.911720, 10.758050, 'Registration Zone', 'Ground floor', 'visitor-guidance', array[]::text[], '09:15', 'DONE'),
+        ('task-test-102', volunteer_uuid, 'Welcome morning arrivals', 'Greet arriving participants and direct them to the registration desk.', 'main-entrance', 59.911491, 10.757933, 'Entrance Zone', null, 'visitor-guidance', array[]::text[], '09:45', 'IN_PROGRESS'),
+        ('task-test-103', volunteer_uuid, 'Assist with badge collection', 'Help participants find their registration details and collect the correct badge.', 'registration-desk', 59.911720, 10.758050, 'Registration Zone', 'Ground floor', 'visitor-guidance', array[]::text[], '10:30', 'TODO'),
+        ('task-test-104', volunteer_uuid, 'Inspect the accessible entrance', 'Confirm that the step-free route is clear and accessibility signs are visible.', 'accessible-entrance', 59.911300, 10.757600, 'Accessible Route', 'Ground floor', 'visitor-guidance', array[]::text[], '11:15', 'TODO'),
+        ('task-test-105', volunteer_uuid, 'Monitor Section B seating', 'Assist visitors with seating and report blocked aisles or crowding.', 'arena-section-b', 59.912350, 10.757650, 'Arena B', 'Level 2', 'crowd-support', array[]::text[], '12:30', 'TODO'),
+        ('task-test-106', volunteer_uuid, 'Provide lunch-break directions', 'Direct volunteers and visitors to the designated lunch and rest areas.', 'information-desk', 59.911850, 10.758420, 'Main Hall', 'Ground floor', 'visitor-guidance', array[]::text[], '13:15', 'TODO'),
+        ('task-test-107', volunteer_uuid, 'Support afternoon visitor flow', 'Guide visitors between the main entrance, information desk and arena sections.', 'main-entrance', 59.911491, 10.757933, 'Entrance Zone', null, 'crowd-support', array[]::text[], '15:00', 'TODO'),
+        ('task-test-108', volunteer_uuid, 'Complete end-of-shift area check', 'Check the registration and entrance areas for lost property, remaining signs and unresolved issues.', 'registration-desk', 59.911720, 10.758050, 'Registration Zone', 'Ground floor', 'visitor-guidance', array[]::text[], '16:45', 'TODO')
+    on conflict (id) do update set
+        volunteer_id = excluded.volunteer_id,
+        title = excluded.title,
+        details = excluded.details,
+        location_id = excluded.location_id,
+        latitude = excluded.latitude,
+        longitude = excluded.longitude,
+        area = excluded.area,
+        floor = excluded.floor,
+        scenario_id = excluded.scenario_id,
+        required_permission_ids = excluded.required_permission_ids,
+        due_time = excluded.due_time,
+        status = excluded.status;
+end
+$$;
+
 select
     u.email,
     p.display_name,
@@ -122,5 +196,6 @@ from auth.users u
 join public.profiles p on p.id = u.id
 left join public.shifts s on s.volunteer_id = u.id
 left join public.tasks t on t.volunteer_id = u.id
-where lower(u.email) = lower('3059682344@qq.com')
-group by u.email, p.display_name, s.title;
+where lower(u.email) in (lower('3059682344@qq.com'), lower('xuzhu7245@uit.no'))
+group by u.email, p.display_name, s.title
+order by u.email;
