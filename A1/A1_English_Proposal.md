@@ -48,11 +48,11 @@ Several existing platforms provide inspiration for this solution:
 - QR-based check-in or checkpoint confirmation
 - Incident reporting with text and photo
 - Push notifications for urgent updates
+- Unified Inbox for announcements and task-linked coordinator conversations
 
 #### Medium Priority
-- Team messaging or broadcast announcements
 - Volunteer status updates such as available, busy, or on break
-- Contact list for coordinators
+- Extended coordinator contact directory
 
 #### Lower Priority / Extension
 - Indoor positioning enhancements
@@ -79,7 +79,9 @@ These technologies match the realities of event operations: movement, changing c
 - Zones or checkpoints
 - Tasks
 - Incidents
-- Messages
+- Announcements
+- Task conversations and chat messages
+- Coordinator contacts
 - Check-ins
 - Positions or location markers
 
@@ -132,14 +134,15 @@ By the end of the semester, the goal is to deliver a functional Android prototyp
 - Login or user identification
 - Personal shift overview
 - Task list
-- Arena map
+- Arena map with task locations
+- Unified Inbox with announcements and task-linked local conversations
 - QR check-in
 - Incident reporting with photo
 - Basic offline caching
 
 ### Possible Extensions
 - Coordinator dashboard integration
-- Group communication tools
+- Real-time messaging, delivery receipts, and push integration
 - Smarter task prioritization
 - Enhanced location support
 - More advanced synchronization logic

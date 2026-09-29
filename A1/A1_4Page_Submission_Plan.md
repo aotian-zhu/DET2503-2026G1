@@ -33,7 +33,8 @@ Show how the product works in practice.
   - start shift
   - navigate
   - check in
-  - receive alert
+  - receive an announcement
+  - contact the responsible coordinator from a task
   - report incident
 - Prioritized features
 - Why mobile technologies are relevant
@@ -49,7 +50,8 @@ Show how the product works in practice.
 Demonstrate technical understanding.
 
 ### Include
-- Core data objects
+- Core data objects, including announcements, task conversations, messages, and coordinator contacts
+- Five-area navigation: Home, Map, Tasks, Inbox, and Profile
 - What data comes from API
 - What data is stored locally
 - Offline and sync logic

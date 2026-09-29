@@ -144,8 +144,8 @@ The user should be able to submit a short incident report with:
 
 This is one of the strongest justifications for using a mobile device.
 
-#### 6. Alerts and Messages
-The volunteer should receive important updates during operations, especially when tasks, locations, or safety-related instructions change.
+#### 6. Communication Centre
+A dedicated Inbox combines operational announcements, task-linked conversations, and urgent contact guidance. Announcements support one-to-many updates such as meeting-point, shift, weather, or safety changes. Each task can open a conversation with its responsible coordinator while automatically carrying the task, time, and location context. Urgent safety or medical issues use a separate, clearly labelled contact route instead of being mixed into ordinary chat.
 
 #### 7. Offline Support
 Essential content must remain available when the network is poor. This includes current shift details, map references, recent tasks, and queued user actions.
@@ -199,7 +199,10 @@ Arena Companion depends on data from a wider operational ecosystem. The applicat
 - Zone
 - Task
 - Incident
-- Message
+- Announcement
+- Task conversation
+- Chat message
+- Coordinator contact
 - Check-in
 - Location point
 
@@ -307,7 +310,7 @@ The local Room database on the device should not replace the backend database. I
 
 ## 10. Information Architecture
 
-The MVP can be structured into four main navigation areas:
+The MVP is structured into five main navigation areas:
 
 ### Home
 Shows current shift, urgent alerts, and the next recommended action.
@@ -316,7 +319,10 @@ Shows current shift, urgent alerts, and the next recommended action.
 Shows the arena, task locations, checkpoints, and important markers.
 
 ### Tasks
-Shows assigned tasks, progress, and links to check-in or reporting workflows.
+Shows assigned tasks, progress, and a context-aware shortcut to contact the responsible coordinator.
+
+### Inbox
+Combines announcements, task conversations, unread status, and a clearly separated urgent-contact area. Conversations remain linked to tasks so coordinators receive the necessary operational context.
 
 ### Profile
 Shows the volunteer's role, contact information, and basic settings.
