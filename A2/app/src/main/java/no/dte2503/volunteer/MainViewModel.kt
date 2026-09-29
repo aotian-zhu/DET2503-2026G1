@@ -2,22 +2,19 @@ package no.dte2503.volunteer
 
 import android.location.Location
 import androidx.lifecycle.ViewModel
-import no.dte2503.volunteer.data.GeoPointData
-import no.dte2503.volunteer.data.TaskWithDistance
-import no.dte2503.volunteer.data.MockRepository
-import no.dte2503.volunteer.data.Announcement
-import no.dte2503.volunteer.data.ChatMessage
-import no.dte2503.volunteer.data.TaskConversation
-import no.dte2503.volunteer.data.TaskStatus
-import no.dte2503.volunteer.data.VolunteerTask
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.util.UUID
+import kotlinx.coroutines.launch
+import no.dte2503.volunteer.data.*
 
 data class AppUiState(
     val isLoggedIn: Boolean = false,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val actionMessage: String? = null,
     val currentPosition: GeoPointData? = null,
     val locationPermissionDenied: Boolean = false,
     val selectedTaskId: String? = null,
@@ -27,133 +24,114 @@ data class AppUiState(
     val tasks: List<VolunteerTask> = MockRepository.tasks,
     val announcements: List<Announcement> = MockRepository.announcements,
     val conversations: List<TaskConversation> = MockRepository.conversations,
+    val isSendingMessage: Boolean = false,
+    val isSubmittingWorkflow: Boolean = false,
 )
 
-class MainViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(AppUiState())
+class MainViewModel(private val repository: VolunteerRepository = RepositoryProvider.repository) : ViewModel() {
+    private val _uiState = MutableStateFlow(AppUiState(isLoading = repository.isRemote))
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
-
-    val profile = MockRepository.profile
-    val shift = MockRepository.shift
+    var profile = MockRepository.profile; private set
+    var shift = MockRepository.shift; private set
     val scenarios = MockRepository.scenarios
     val permissions = MockRepository.permissions
     val functions = MockRepository.functions
-    val locations = MockRepository.locations
+    var locations = MockRepository.locations; private set
+    val isDemoMode get() = !repository.isRemote
 
-    fun login(username: String) = _uiState.update {
-        val value = username.trim()
-        it.copy(
-            isLoggedIn = true,
-            signedInName = value.substringBefore('@').ifBlank { "Volunteer" },
-            signedInEmail = value,
-        )
+    init { if (repository.isRemote) restoreSession() }
+
+    private fun restoreSession() = viewModelScope.launch {
+        runCatching { repository.restoreSession() }.onSuccess { if (it) loadVolunteerData() else _uiState.update { state -> state.copy(isLoading = false) } }
+            .onFailure(::showError)
     }
 
-    fun logout() = _uiState.update { AppUiState() }
-
-    fun updateEmail(email: String): Boolean {
-        val value = email.trim()
-        if (value.isEmpty()) return false
-        _uiState.update { it.copy(signedInEmail = value) }
-        return true
+    fun login(email: String, password: String) = viewModelScope.launch {
+        val cleanEmail = email.trim()
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+        runCatching {
+            repository.signIn(cleanEmail, password)
+            if (repository.isRemote) loadVolunteerData() else {
+                val data = repository.loadVolunteerData()
+                applyData(data, cleanEmail.substringBefore('@').ifBlank { "Volunteer" }, cleanEmail)
+            }
+        }.onFailure(::showError)
     }
 
-    fun setCurrentPosition(latitude: Double, longitude: Double) {
-        _uiState.update {
-            it.copy(currentPosition = GeoPointData(latitude, longitude), locationPermissionDenied = false)
-        }
+    private suspend fun loadVolunteerData() {
+        val data = repository.loadVolunteerData()
+        applyData(data, data.profile.displayName, data.profile.email)
     }
 
-    fun setLocationPermissionDenied(denied: Boolean) {
-        _uiState.update { it.copy(locationPermissionDenied = denied) }
+    private fun applyData(data: VolunteerData, name: String, email: String) {
+        profile = data.profile; shift = data.shift; locations = data.locations
+        _uiState.update { it.copy(isLoggedIn = true, isLoading = false, errorMessage = null, signedInName = name, signedInEmail = email, tasks = data.tasks, announcements = data.announcements, conversations = data.conversations) }
     }
 
-    fun selectTask(taskId: String?) {
-        if (taskId == null || _uiState.value.tasks.any { it.id == taskId }) {
-            _uiState.update { it.copy(selectedTaskId = taskId) }
-        }
+    fun logout() = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+        runCatching { repository.signOut() }.onSuccess {
+            profile = MockRepository.profile; shift = MockRepository.shift; locations = MockRepository.locations
+            _uiState.value = AppUiState()
+        }.onFailure(::showError)
     }
+
+    fun clearError() = _uiState.update { it.copy(errorMessage = null) }
+    fun clearActionMessage() = _uiState.update { it.copy(actionMessage = null) }
+    fun updateEmail(email: String): Boolean { val value = email.trim(); if (value.isEmpty()) return false; _uiState.update { it.copy(signedInEmail = value) }; return true }
+    fun setCurrentPosition(latitude: Double, longitude: Double) = _uiState.update { it.copy(currentPosition = GeoPointData(latitude, longitude), locationPermissionDenied = false) }
+    fun setLocationPermissionDenied(denied: Boolean) = _uiState.update { it.copy(locationPermissionDenied = denied) }
+    fun selectTask(taskId: String?) { if (taskId == null || _uiState.value.tasks.any { it.id == taskId }) _uiState.update { it.copy(selectedTaskId = taskId) } }
 
     fun markAnnouncementRead(id: String) {
-        _uiState.update { state ->
-            state.copy(announcements = state.announcements.map { announcement ->
-                if (announcement.id == id) announcement.copy(isRead = true) else announcement
-            })
-        }
+        val previous = _uiState.value.announcements
+        _uiState.update { it.copy(announcements = it.announcements.map { announcement -> if (announcement.id == id) announcement.copy(isRead = true) else announcement }) }
+        viewModelScope.launch { runCatching { repository.markAnnouncementRead(id) }.onFailure { error -> _uiState.update { it.copy(announcements = previous, errorMessage = error.userMessage()) } } }
     }
 
-    fun openConversation(taskId: String?) {
-        _uiState.update { state ->
-            state.copy(
-                selectedConversationTaskId = taskId,
-                conversations = if (taskId == null) state.conversations else state.conversations.map { conversation ->
-                    if (conversation.taskId == taskId) conversation.copy(unreadCount = 0) else conversation
-                },
-            )
-        }
-    }
+    fun openConversation(taskId: String?) = _uiState.update { state -> state.copy(selectedConversationTaskId = taskId, conversations = state.conversations.map { if (it.taskId == taskId) it.copy(unreadCount = 0) else it }) }
 
     fun sendMessage(taskId: String, body: String) {
-        val text = body.trim()
-        if (text.isEmpty()) return
-        _uiState.update { state ->
-            val existing = state.conversations.firstOrNull { it.taskId == taskId }
-            val message = ChatMessage(
-                id = "local_${UUID.randomUUID()}",
-                sender = state.signedInName,
-                body = text,
-                time = "Now",
-                isFromVolunteer = true,
-            )
-            val updated = if (existing == null) {
-                state.conversations + TaskConversation(
-                    id = "conversation_$taskId",
-                    taskId = taskId,
-                    coordinatorName = "Shift coordinator",
-                    messages = listOf(message),
-                    unreadCount = 0,
-                )
-            } else {
-                state.conversations.map { conversation ->
-                    if (conversation.taskId == taskId) conversation.copy(messages = conversation.messages + message, unreadCount = 0)
-                    else conversation
-                }
-            }
-            state.copy(conversations = updated)
+        val text = body.trim(); if (text.isEmpty() || _uiState.value.isSendingMessage) return
+        _uiState.update { it.copy(isSendingMessage = true, errorMessage = null) }
+        viewModelScope.launch {
+            runCatching { repository.sendMessage(taskId, text) }.onSuccess { updated ->
+                _uiState.update { state -> state.copy(isSendingMessage = false, conversations = state.conversations.filterNot { it.taskId == taskId } + updated) }
+            }.onFailure { error -> _uiState.update { it.copy(isSendingMessage = false, errorMessage = error.userMessage()) } }
         }
+    }
+
+    fun checkIn(payload: String) {
+        if (_uiState.value.isSubmittingWorkflow) return
+        _uiState.update { it.copy(isSubmittingWorkflow = true, errorMessage = null, actionMessage = null) }
+        viewModelScope.launch { runCatching { repository.checkIn(payload.trim()) }.onSuccess { result ->
+            _uiState.update { it.copy(isSubmittingWorkflow = false, actionMessage = if (result.duplicate) "Already checked in at this checkpoint." else "Check-in recorded successfully.") }
+        }.onFailure { error -> _uiState.update { it.copy(isSubmittingWorkflow = false, errorMessage = error.userMessage()) } } }
+    }
+
+    fun submitIncident(draft: IncidentDraft, photoBytes: ByteArray?, photoMimeType: String?) {
+        if (_uiState.value.isSubmittingWorkflow) return
+        _uiState.update { it.copy(isSubmittingWorkflow = true, errorMessage = null, actionMessage = null) }
+        viewModelScope.launch { runCatching { repository.submitIncident(draft, photoBytes, photoMimeType) }.onSuccess { receipt ->
+            _uiState.update { it.copy(isSubmittingWorkflow = false, actionMessage = "Incident ${receipt.id.take(8)} submitted.") }
+        }.onFailure { error -> _uiState.update { it.copy(isSubmittingWorkflow = false, errorMessage = error.userMessage()) } } }
     }
 
     fun advanceTask(taskId: String) {
-        _uiState.update { state ->
-            state.copy(tasks = state.tasks.map { task ->
-                if (task.id != taskId) task else task.copy(status = when (task.status) {
-                    TaskStatus.TODO -> TaskStatus.IN_PROGRESS
-                    TaskStatus.IN_PROGRESS -> TaskStatus.DONE
-                    TaskStatus.DONE -> TaskStatus.DONE
-                })
-            })
-        }
+        val task = _uiState.value.tasks.firstOrNull { it.id == taskId } ?: return
+        val nextStatus = when (task.status) { TaskStatus.TODO -> TaskStatus.IN_PROGRESS; TaskStatus.IN_PROGRESS -> TaskStatus.DONE; TaskStatus.DONE -> return }
+        _uiState.update { state -> state.copy(errorMessage = null, tasks = state.tasks.map { if (it.id == taskId) it.copy(status = nextStatus) else it }) }
+        viewModelScope.launch { runCatching { repository.updateTaskStatus(taskId, nextStatus) }.onFailure { error -> _uiState.update { state -> state.copy(errorMessage = error.userMessage(), tasks = state.tasks.map { if (it.id == taskId) it.copy(status = task.status) else it }) } } }
     }
 
     fun assignedFunctions() = functions.filter { it.id in profile.assignedFunctionIds }
+    fun effectivePermissions() = assignedFunctions().flatMap { function -> permissions.filter { it.id in function.permissionIds } }.distinctBy { it.id }
+    fun tasksWithDistance(position: GeoPointData?, tasks: List<VolunteerTask> = _uiState.value.tasks) = tasks.map { task ->
+        val distance = position?.let { val result = FloatArray(1); Location.distanceBetween(it.latitude, it.longitude, task.place.position.latitude, task.place.position.longitude, result); result[0] }
+        TaskWithDistance(task, distance)
+    }.sortedBy { it.distanceMetres ?: Float.MAX_VALUE }
 
-    fun effectivePermissions() = assignedFunctions()
-        .flatMap { function -> permissions.filter { it.id in function.permissionIds } }
-        .distinctBy { it.id }
-
-    fun tasksWithDistance(position: GeoPointData?, tasks: List<VolunteerTask> = _uiState.value.tasks): List<TaskWithDistance> =
-        tasks.map { task ->
-            val distance = position?.let {
-                val result = FloatArray(1)
-                Location.distanceBetween(
-                    it.latitude,
-                    it.longitude,
-                    task.place.position.latitude,
-                    task.place.position.longitude,
-                    result,
-                )
-                result[0]
-            }
-            TaskWithDistance(task, distance)
-        }.sortedBy { it.distanceMetres ?: Float.MAX_VALUE }
+    private fun showError(error: Throwable) = _uiState.update { it.copy(isLoading = false, errorMessage = error.userMessage()) }
 }
+
+private fun Throwable.userMessage() = message?.takeIf { it.isNotBlank() } ?: "Something went wrong. Please try again."

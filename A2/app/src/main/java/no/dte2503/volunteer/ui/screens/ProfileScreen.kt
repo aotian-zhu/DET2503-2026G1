@@ -103,16 +103,8 @@ fun ProfileScreen(viewModel: MainViewModel, onLogout: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         item {
-            Text(
-                "Profile",
-                modifier = Modifier.padding(top = 20.dp),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-        item {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)),
             ) {

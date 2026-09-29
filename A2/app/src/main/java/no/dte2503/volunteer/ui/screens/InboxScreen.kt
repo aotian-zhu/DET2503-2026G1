@@ -70,10 +70,6 @@ fun InboxScreen(viewModel: MainViewModel) {
         modifier = Modifier.fillMaxSize().padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item {
-            Text("Inbox", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text("Announcements and task conversations", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
         item { Text("Announcements", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold) }
         items(state.announcements, key = { it.id }) { announcement ->
             Card(
@@ -201,7 +197,7 @@ private fun ConversationView(viewModel: MainViewModel, taskId: String) {
                     viewModel.sendMessage(taskId, draft)
                     draft = ""
                 },
-                enabled = draft.isNotBlank(),
+                enabled = draft.isNotBlank() && !state.isSendingMessage,
             ) { Icon(Icons.Rounded.Send, "Send") }
         }
     }

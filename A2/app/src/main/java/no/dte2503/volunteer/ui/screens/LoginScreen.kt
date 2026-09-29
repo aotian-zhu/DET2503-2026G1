@@ -27,7 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(onLogin: (String) -> Unit) {
+fun LoginScreen(
+    isLoading: Boolean,
+    errorMessage: String?,
+    isDemoMode: Boolean,
+    onLogin: (String, String) -> Unit,
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     Column(
@@ -44,8 +49,18 @@ fun LoginScreen(onLogin: (String) -> Unit) {
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(password, { password = it }, label = { Text("Password") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(24.dp))
-        Button(onClick = { onLogin(email) }, enabled = email.isNotBlank() && password.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Sign in") }
-        Spacer(Modifier.height(10.dp))
-        Text("Prototype login — any details are accepted", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Button(
+            onClick = { onLogin(email, password) },
+            enabled = email.isNotBlank() && password.isNotBlank() && !isLoading,
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text(if (isLoading) "Signing in…" else "Sign in") }
+        errorMessage?.let {
+            Spacer(Modifier.height(10.dp))
+            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        if (isDemoMode) {
+            Spacer(Modifier.height(10.dp))
+            Text("Demo mode — any details are accepted", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }

@@ -9,14 +9,18 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.TaskAlt
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,6 +40,7 @@ import no.dte2503.volunteer.ui.screens.LoginScreen
 import no.dte2503.volunteer.ui.screens.MapScreen
 import no.dte2503.volunteer.ui.screens.ProfileScreen
 import no.dte2503.volunteer.ui.screens.TasksScreen
+import no.dte2503.volunteer.ui.screens.WorkflowScreen
 import no.dte2503.volunteer.ui.theme.VolunteerHubTheme
 
 class MainActivity : ComponentActivity() {
@@ -64,20 +69,46 @@ private fun NavHostController.openTopLevel(route: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VolunteerApp(viewModel: MainViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsState()
     if (!state.isLoggedIn) {
-        LoginScreen(onLogin = viewModel::login)
+        LoginScreen(
+            isLoading = state.isLoading,
+            errorMessage = state.errorMessage,
+            isDemoMode = viewModel.isDemoMode,
+            onLogin = viewModel::login,
+        )
         return
     }
 
     val navController = rememberNavController()
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
+    val topBarTitle = when (currentRoute) {
+        "home" -> "Home"
+        "tasks" -> "Tasks"
+        "inbox" -> "Inbox"
+        else -> null
+    }
     Scaffold(
+        topBar = {
+            if (topBarTitle != null) {
+                CenterAlignedTopAppBar(
+                    title = { Text(topBarTitle) },
+                    actions = {
+                        IconButton(onClick = {
+                            navController.navigate("actions") { launchSingleTop = true }
+                        }) {
+                            Icon(Icons.Rounded.QrCodeScanner, "Open on-site actions")
+                        }
+                    },
+                )
+            }
+        },
         bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.primaryContainer) {
+            if (currentRoute != "actions") NavigationBar(containerColor = MaterialTheme.colorScheme.primaryContainer) {
                 destinations.forEach { destination ->
                     NavigationBarItem(
                         selected = currentRoute == destination.route,
@@ -124,6 +155,7 @@ private fun VolunteerApp(viewModel: MainViewModel = viewModel()) {
                     },
                 )
             }
+            composable("actions") { WorkflowScreen(viewModel, onBack = { navController.popBackStack() }) }
             composable("inbox") { InboxScreen(viewModel) }
             composable("profile") { ProfileScreen(viewModel, viewModel::logout) }
         }

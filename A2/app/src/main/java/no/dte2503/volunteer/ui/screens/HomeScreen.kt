@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.AccessTime
-import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,12 +36,8 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val nextTask = state.tasks.firstOrNull { it.status != TaskStatus.DONE }
-    val meetingPoint = viewModel.locations.first { it.id == viewModel.shift.meetingPointId }
+    val meetingPoint = viewModel.locations.firstOrNull { it.id == viewModel.shift.meetingPointId }
     LazyColumn(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        item {
-            Text("Good morning, ${state.signedInName}", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text("Here is what you need for today.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
         item { SectionTitle("Current shift") }
         item {
             InfoCard {
@@ -49,7 +45,7 @@ fun HomeScreen(
                     Icon(Icons.Rounded.AccessTime, null, tint = MaterialTheme.colorScheme.primary)
                     Column(Modifier.padding(start = 14.dp)) {
                         Text(viewModel.shift.title, fontWeight = FontWeight.SemiBold)
-                        Text("${viewModel.shift.startTime}–${viewModel.shift.endTime} · ${meetingPoint.name}")
+                        Text("${viewModel.shift.startTime}–${viewModel.shift.endTime} · ${meetingPoint?.name ?: "Meeting point unavailable"}")
                     }
                 }
             }
@@ -76,7 +72,7 @@ fun HomeScreen(
                         Text(nextTask?.title ?: "No remaining tasks", fontWeight = FontWeight.SemiBold)
                         nextTask?.let { Text(it.details, style = MaterialTheme.typography.bodyMedium) }
                     }
-                    Icon(Icons.Rounded.ArrowForward, null)
+                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, null)
                 }
             }
         }
