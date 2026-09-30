@@ -8,6 +8,7 @@ import no.dte2503.volunteer.BuildConfig
 
 object RepositoryProvider {
     val repository: VolunteerRepository by lazy {
+        // 构建配置决定数据源：无远程凭据时自动使用可离线演示的 Mock 实现。
         val url = BuildConfig.SUPABASE_URL.trim()
         val anonKey = BuildConfig.SUPABASE_ANON_KEY.trim()
         if (url.isBlank() || anonKey.isBlank()) {

@@ -69,6 +69,7 @@ create table public.messages (
     is_from_volunteer boolean not null default false
 );
 
+-- RLS 将“能连到数据库”与“能看到哪些业务行”分离，策略按当前登录用户限制数据范围。
 alter table public.profiles enable row level security;
 alter table public.locations enable row level security;
 alter table public.shifts enable row level security;

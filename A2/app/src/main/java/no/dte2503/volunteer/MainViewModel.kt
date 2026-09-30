@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import no.dte2503.volunteer.data.*
 
+// 页面共享的单一状态快照，避免各 Screen 分别维护互相冲突的业务状态。
 data class AppUiState(
     val isLoggedIn: Boolean = false,
     val isLoading: Boolean = false,
@@ -28,6 +29,7 @@ data class AppUiState(
     val isSubmittingWorkflow: Boolean = false,
 )
 
+// ViewModel 只依赖仓库接口，因此 UI 无需知道当前使用演示数据还是 Supabase。
 class MainViewModel(private val repository: VolunteerRepository = RepositoryProvider.repository) : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState(isLoading = repository.isRemote))
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
@@ -84,6 +86,7 @@ class MainViewModel(private val repository: VolunteerRepository = RepositoryProv
     fun selectTask(taskId: String?) { if (taskId == null || _uiState.value.tasks.any { it.id == taskId }) _uiState.update { it.copy(selectedTaskId = taskId) } }
 
     fun markAnnouncementRead(id: String) {
+        // 先即时更新界面；远程写入失败时用快照回滚，兼顾响应速度与一致性。
         val previous = _uiState.value.announcements
         _uiState.update { it.copy(announcements = it.announcements.map { announcement -> if (announcement.id == id) announcement.copy(isRead = true) else announcement }) }
         viewModelScope.launch { runCatching { repository.markAnnouncementRead(id) }.onFailure { error -> _uiState.update { it.copy(announcements = previous, errorMessage = error.userMessage()) } } }
@@ -118,12 +121,14 @@ class MainViewModel(private val repository: VolunteerRepository = RepositoryProv
     }
 
     fun advanceTask(taskId: String) {
+        // 客户端只允许 TODO→IN_PROGRESS→DONE；服务端 RPC 再校验归属，失败则回滚。
         val task = _uiState.value.tasks.firstOrNull { it.id == taskId } ?: return
         val nextStatus = when (task.status) { TaskStatus.TODO -> TaskStatus.IN_PROGRESS; TaskStatus.IN_PROGRESS -> TaskStatus.DONE; TaskStatus.DONE -> return }
         _uiState.update { state -> state.copy(errorMessage = null, tasks = state.tasks.map { if (it.id == taskId) it.copy(status = nextStatus) else it }) }
         viewModelScope.launch { runCatching { repository.updateTaskStatus(taskId, nextStatus) }.onFailure { error -> _uiState.update { state -> state.copy(errorMessage = error.userMessage(), tasks = state.tasks.map { if (it.id == taskId) it.copy(status = task.status) else it }) } } }
     }
 
+    // 权限和距离都是由原始数据派生的展示模型，不额外保存可失真的副本。
     fun assignedFunctions() = functions.filter { it.id in profile.assignedFunctionIds }
     fun effectivePermissions() = assignedFunctions().flatMap { function -> permissions.filter { it.id in function.permissionIds } }.distinctBy { it.id }
     fun tasksWithDistance(position: GeoPointData?, tasks: List<VolunteerTask> = _uiState.value.tasks) = tasks.map { task ->

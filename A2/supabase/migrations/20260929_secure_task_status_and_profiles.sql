@@ -1,5 +1,6 @@
 drop policy if exists "volunteers update own tasks" on public.tasks;
 
+-- 撤销客户端直接更新后，以受控 RPC 同时校验状态值和任务归属。
 create or replace function public.update_own_task_status(task_id text, new_status text)
 returns void
 language plpgsql

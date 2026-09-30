@@ -61,6 +61,7 @@ begin
   return conversation_id;
 end $$;
 
+-- 唯一约束配合重复查询实现幂等签到：重复扫码返回原记录，而不是制造第二次签到。
 create or replace function public.check_in_with_qr(qr_payload text) returns table(id text, checked_in_at text, duplicate boolean) language plpgsql security definer set search_path = public as $$
 declare payload_parts text[]; checkpoint uuid; shift text; existing public.check_ins; inserted public.check_ins;
 begin
@@ -75,6 +76,7 @@ begin
   return query select inserted.id::text, inserted.checked_in_at::text, false;
 end $$;
 
+-- RPC 不信任客户端关联：任务必须属于本人，照片路径首段也必须是当前用户 ID。
 create or replace function public.submit_incident(incident_category text, incident_description text, incident_location_id text default null, incident_task_id text default null, incident_photo_path text default null) returns table(id text, submitted_at text, photo_path text) language plpgsql security definer set search_path = public as $$
 declare created public.incidents;
 begin
@@ -94,6 +96,7 @@ revoke all on function public.check_in_with_qr(text) from public;
 revoke all on function public.submit_incident(text,text,text,text,text) from public;
 grant execute on function public.mark_announcement_read(text), public.send_task_message(text,text), public.check_in_with_qr(text), public.submit_incident(text,text,text,text,text) to authenticated;
 
+-- 私有 bucket 与目录所有权策略共同保证志愿者只能管理自己 ID 目录下的照片。
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('incident-photos','incident-photos',false,5242880,array['image/jpeg','image/png','image/webp']) on conflict(id) do update set public=false,file_size_limit=excluded.file_size_limit,allowed_mime_types=excluded.allowed_mime_types;
 create policy "volunteers upload own incident photos" on storage.objects for insert to authenticated with check (bucket_id='incident-photos' and (storage.foldername(name))[1]=auth.uid()::text);
 create policy "volunteers read own incident photos" on storage.objects for select to authenticated using (bucket_id='incident-photos' and (storage.foldername(name))[1]=auth.uid()::text);

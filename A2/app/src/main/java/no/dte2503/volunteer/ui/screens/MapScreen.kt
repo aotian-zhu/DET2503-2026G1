@@ -61,6 +61,7 @@ fun MapScreen(
 ) {
     val context = LocalContext.current
     val fusedClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    // Screen 负责 Android 权限与定位 API；ViewModel 只接收平台无关的坐标和拒绝状态。
     fun loadLocation() {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -180,6 +181,7 @@ private fun OsmMap(
     val markerBorderColor = MaterialTheme.colorScheme.primary.toArgb()
     var map by remember { mutableStateOf<MapView?>(null) }
     var lastFocusedTaskId by remember { mutableStateOf<String?>(null) }
+    // MapView 有独立生命周期，离开 Compose 时必须释放其瓦片与监听资源。
     DisposableEffect(Unit) { onDispose { map?.onDetach() } }
     AndroidView(
         modifier = Modifier.fillMaxSize(),

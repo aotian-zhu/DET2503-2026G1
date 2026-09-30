@@ -19,6 +19,7 @@ class SupabaseVolunteerRepository(private val client: SupabaseClient) : Voluntee
     override suspend fun signOut() = client.auth.signOut()
 
     override suspend fun loadVolunteerData(): VolunteerData {
+        // 将多个受 RLS 保护的表聚合成一次 UI 所需快照，关联关系在仓库层完成。
         val user = requireNotNull(client.auth.currentUserOrNull()) { "No authenticated user" }
         val profile = client.from("profiles").select { filter { eq("id", user.id) } }.decodeSingle<ProfileDto>().toModel(user.email.orEmpty())
         val shifts = client.from("shifts").select { filter { eq("volunteer_id", user.id) } }.decodeList<ShiftDto>()
@@ -36,6 +37,7 @@ class SupabaseVolunteerRepository(private val client: SupabaseClient) : Voluntee
     }
 
     override suspend fun updateTaskStatus(taskId: String, status: TaskStatus) {
+        // 写操作通过受控 RPC 收口，数据库可同时校验身份、任务归属与输入范围。
         client.postgrest.rpc("update_own_task_status", buildJsonObject { put("task_id", taskId); put("new_status", status.name) })
     }
 
@@ -69,6 +71,7 @@ class SupabaseVolunteerRepository(private val client: SupabaseClient) : Voluntee
                 photoPath?.let { put("incident_photo_path", it) }
             }).decodeSingle<IncidentDto>().toModel()
         }.getOrElse { error ->
+            // 照片先上传、事件后落库；RPC 失败时删除孤立对象，补偿非事务的跨服务操作。
             photoPath?.let { runCatching { client.storage.from("incident-photos").delete(it) } }
             throw error
         }

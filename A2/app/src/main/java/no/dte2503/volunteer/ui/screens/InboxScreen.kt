@@ -61,6 +61,7 @@ fun InboxScreen(viewModel: MainViewModel) {
             confirmButton = { TextButton(onClick = { showEmergencyContacts = false }) { Text("Close") } },
         )
     }
+    // Inbox 内部用任务 ID 表示“列表/会话”子状态，不额外创建一套导航图。
     if (selectedTaskId != null) {
         ConversationView(viewModel, selectedTaskId)
         return
@@ -141,6 +142,7 @@ private fun ConversationView(viewModel: MainViewModel, taskId: String) {
     val location = viewModel.locations.firstOrNull { it.id == task.locationId }
     var draft by remember(taskId) { mutableStateOf("") }
     val listState = rememberLazyListState()
+    // 系统返回键与页面返回按钮都清除同一会话子状态，保持行为一致。
     BackHandler { viewModel.openConversation(null) }
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)

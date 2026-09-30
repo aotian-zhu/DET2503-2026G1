@@ -1,5 +1,6 @@
 package no.dte2503.volunteer.data
 
+// UI 层只依赖此边界；认证、网络、缓存或演示实现均封装在仓库内部。
 interface VolunteerRepository {
     val isRemote: Boolean
     suspend fun restoreSession(): Boolean

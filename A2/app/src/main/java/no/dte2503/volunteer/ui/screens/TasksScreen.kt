@@ -64,6 +64,7 @@ fun TasksScreen(
                     scenario?.let {
                         Text("Support scenario: ${it.name}", style = MaterialTheme.typography.labelMedium)
                     }
+                    // 卡片只表达用户意图；状态推进、跨页定位和联系编排由上层处理。
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),

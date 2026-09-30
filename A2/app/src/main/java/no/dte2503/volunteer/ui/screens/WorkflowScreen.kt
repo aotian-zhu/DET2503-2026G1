@@ -36,6 +36,7 @@ fun WorkflowScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     var categoryMenu by remember { mutableStateOf(false) }
     var locationMenu by remember { mutableStateOf(false) }
     var taskMenu by remember { mutableStateOf(false) }
+    // 扫码与文件选择属于平台能力；业务校验和提交仍由 ViewModel/仓库完成。
     val scanner = rememberLauncherForActivityResult(ScanContract()) { result -> result.contents?.let(viewModel::checkIn) }
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { photoUri = it }
 

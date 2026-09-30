@@ -3,6 +3,7 @@ package no.dte2503.volunteer.data
 import java.time.Instant
 import java.util.UUID
 
+// Mock 保持与远程仓库相同的行为契约，便于无后端环境演示完整流程。
 class MockVolunteerRepository : VolunteerRepository {
     override val isRemote = false
     private var announcements = MockRepository.announcements
@@ -36,6 +37,7 @@ class MockVolunteerRepository : VolunteerRepository {
     }
 
     override suspend fun checkIn(payload: String): CheckInResult {
+        // 用内存索引模拟服务端幂等约束，同一码重复扫描返回 duplicate 而非新增记录。
         require(payload.startsWith("arena-checkin:v1:")) { "Invalid check-in QR code" }
         return checkIns[payload]?.copy(duplicate = true) ?: CheckInResult(
             id = "checkin_${UUID.randomUUID()}",

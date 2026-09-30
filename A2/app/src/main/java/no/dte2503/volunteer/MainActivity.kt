@@ -61,6 +61,7 @@ private val destinations = listOf(
     Destination("profile", "Profile", Icons.Rounded.Person),
 )
 
+// 顶层目的地复用同一返回栈并恢复页面状态，避免底栏切换不断叠加页面。
 private fun NavHostController.openTopLevel(route: String) {
     navigate(route) {
         popUpTo(graph.findStartDestination().id) { saveState = true }
@@ -73,6 +74,7 @@ private fun NavHostController.openTopLevel(route: String) {
 @Composable
 private fun VolunteerApp(viewModel: MainViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsState()
+    // 登录态是整个应用壳的门控：未认证时不创建主导航，也不会暴露业务页面。
     if (!state.isLoggedIn) {
         LoginScreen(
             isLoading = state.isLoading,
@@ -132,6 +134,7 @@ private fun VolunteerApp(viewModel: MainViewModel = viewModel()) {
             }
         }
     ) { innerPadding ->
+        // Activity 只负责编排跨页面意图；业务状态与副作用统一交给同一个 ViewModel。
         NavHost(navController, startDestination = "home", modifier = androidx.compose.ui.Modifier.padding(innerPadding)) {
             composable("home") {
                 HomeScreen(
