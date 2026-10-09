@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import no.dte2503.volunteer.MainViewModel
@@ -140,13 +141,22 @@ private fun ConversationView(viewModel: MainViewModel, taskId: String) {
     val conversation = state.conversations.firstOrNull { it.taskId == taskId }
     val messages = conversation?.messages.orEmpty()
     val location = viewModel.locations.firstOrNull { it.id == task.locationId }
-    var draft by remember(taskId) { mutableStateOf("") }
+    val context = LocalContext.current
+    val drafts = remember { context.getSharedPreferences("message_drafts", android.content.Context.MODE_PRIVATE) }
+    var draft by remember(taskId) { mutableStateOf(drafts.getString(taskId, "").orEmpty()) }
     val listState = rememberLazyListState()
     // 系统返回键与页面返回按钮都清除同一会话子状态，保持行为一致。
     BackHandler { viewModel.openConversation(null) }
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)
     }
+    LaunchedEffect(state.messageSendVersion, state.messageSentTaskId) {
+        if (state.messageSentTaskId == taskId) {
+            draft = ""
+            drafts.edit().remove(taskId).apply()
+        }
+    }
+    LaunchedEffect(taskId) { viewModel.retryPendingMessage(taskId) }
 
     Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -190,15 +200,15 @@ private fun ConversationView(viewModel: MainViewModel, taskId: String) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = draft,
-                onValueChange = { draft = it },
+                onValueChange = {
+                    draft = it
+                    drafts.edit().putString(taskId, it).apply()
+                },
                 label = { Text("Message coordinator") },
                 modifier = Modifier.weight(1f),
             )
             IconButton(
-                onClick = {
-                    viewModel.sendMessage(taskId, draft)
-                    draft = ""
-                },
+                onClick = { viewModel.sendMessage(taskId, draft) },
                 enabled = draft.isNotBlank() && !state.isSendingMessage,
             ) { Icon(Icons.Rounded.Send, "Send") }
         }

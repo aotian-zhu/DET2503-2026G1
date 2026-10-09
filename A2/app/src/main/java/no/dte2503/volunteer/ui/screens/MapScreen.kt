@@ -1,8 +1,16 @@
 package no.dte2503.volunteer.ui.screens
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
 import android.graphics.drawable.GradientDrawable
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.preference.PreferenceManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -41,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import no.dte2503.volunteer.MainViewModel
 import no.dte2503.volunteer.data.GeoPointData
 import no.dte2503.volunteer.data.TaskWithDistance
@@ -57,19 +67,46 @@ fun MapScreen(
     tasks: List<VolunteerTask>,
     position: GeoPointData?,
     denied: Boolean,
+    locationError: String?,
+    locateRequestId: Int,
     selectedTaskId: String?,
 ) {
     val context = LocalContext.current
+    var isOnline by remember { mutableStateOf(isNetworkAvailable(context)) }
     val fusedClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    DisposableEffect(context) {
+        val connectivity = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) { isOnline = true }
+            override fun onLost(network: Network) { isOnline = isNetworkAvailable(context) }
+        }
+        connectivity.registerNetworkCallback(NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), callback)
+        onDispose { connectivity.unregisterNetworkCallback(callback) }
+    }
     // Screen 负责 Android 权限与定位 API；ViewModel 只接收平台无关的坐标和拒绝状态。
     fun loadLocation() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+        val hasPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedClient.lastLocation.addOnSuccessListener { location ->
-                location?.let { viewModel.setCurrentPosition(it.latitude, it.longitude) }
-            }
+        if (!hasPermission) return
+        fun applyLocation(location: Location?) {
+            if (location != null) {
+                viewModel.setCurrentPosition(location.latitude, location.longitude)
+            } else viewModel.setLocationError("Current location is unavailable. Please set a location in the emulator controls.")
         }
+        fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
+            .addOnSuccessListener { location ->
+                if (location != null) applyLocation(location)
+                else fusedClient.lastLocation.addOnSuccessListener { fallback ->
+                    if (fallback != null) applyLocation(fallback) else {
+                        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        val managerFallback = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+                            .mapNotNull { provider -> runCatching { locationManager.getLastKnownLocation(provider) }.getOrNull() }
+                            .maxByOrNull { it.time }
+                        applyLocation(managerFallback)
+                    }
+                }
+            }
+            .addOnFailureListener { viewModel.setLocationError("Could not get your location. Please try again.") }
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         val granted = result.values.any { it }
@@ -79,9 +116,7 @@ fun MapScreen(
     LaunchedEffect(Unit) {
         val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val coarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        if (fine || coarse) loadLocation() else permissionLauncher.launch(
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-        )
+        if (fine || coarse) loadLocation()
     }
 
     val taskItems = viewModel.tasksWithDistance(position, tasks)
@@ -92,19 +127,26 @@ fun MapScreen(
     }
     Column(Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxWidth().height(390.dp)) {
-            OsmMap(viewModel, taskItems, position, selectedTaskId)
+            OsmMap(viewModel, taskItems, position, locateRequestId, selectedTaskId, isOnline)
             Button(
-                onClick = { permissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) },
+                onClick = {
+                    val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    val coarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    if (fine || coarse) loadLocation() else permissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+                },
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
             ) {
                 Icon(Icons.Rounded.MyLocation, null)
                 Text(" Locate me", modifier = Modifier.padding(start = 4.dp))
             }
         }
-        if (denied) {
+        if (!isOnline) {
+            Text("Offline: showing previously cached map tiles.", modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (denied || locationError != null) {
             Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.LocationOff, null, tint = MaterialTheme.colorScheme.error)
-                Text("Location permission is off. Distances cannot be calculated.", modifier = Modifier.padding(start = 8.dp))
+                Text(locationError ?: "Location permission is off. Distances cannot be calculated.", modifier = Modifier.padding(start = 8.dp))
             }
         }
         LazyColumn(
@@ -173,7 +215,9 @@ private fun OsmMap(
     viewModel: MainViewModel,
     taskItems: List<TaskWithDistance>,
     position: GeoPointData?,
+    locateRequestId: Int,
     selectedTaskId: String?,
+    isOnline: Boolean,
 ) {
     val context = LocalContext.current
     val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
@@ -181,11 +225,20 @@ private fun OsmMap(
     val markerBorderColor = MaterialTheme.colorScheme.primary.toArgb()
     var map by remember { mutableStateOf<MapView?>(null) }
     var lastFocusedTaskId by remember { mutableStateOf<String?>(null) }
+    var lastFocusedLocateId by remember { mutableStateOf(0) }
+    var lastOverlaySignature by remember { mutableStateOf<String?>(null) }
+    val overlaySignature = buildString {
+        append(selectedTaskId)
+        append('|')
+        append(position)
+        taskItems.forEach { append('|').append(it.task.id).append(':').append(it.distanceMetres?.toInt()) }
+    }
     // MapView 有独立生命周期，离开 Compose 时必须释放其瓦片与监听资源。
     DisposableEffect(Unit) { onDispose { map?.onDetach() } }
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = {
+            Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context))
             Configuration.getInstance().userAgentValue = context.packageName
             MapView(context).apply {
                 setTileSource(TileSourceFactory.MAPNIK)
@@ -196,8 +249,10 @@ private fun OsmMap(
             }
         },
         update = { mapView ->
-            mapView.overlays.clear()
-            taskItems.forEach { item ->
+            mapView.setUseDataConnection(isOnline)
+            if (overlaySignature != lastOverlaySignature) {
+                mapView.overlays.clear()
+                taskItems.forEach { item ->
                 val task = item.task
                 val location = viewModel.locations.firstOrNull { it.id == task.locationId }
                 val isSelected = task.id == selectedTaskId
@@ -240,16 +295,30 @@ private fun OsmMap(
                     setStroke(6, 0xFFFFFFFF.toInt())
                     setSize(42, 42)
                 }
+                val currentPoint = GeoPoint(current.latitude, current.longitude)
                 mapView.overlays.add(Marker(mapView).apply {
-                    this.position = GeoPoint(current.latitude, current.longitude)
+                    this.position = currentPoint
                     title = "Your location"
                     icon = dot
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                 })
+                if (locateRequestId > lastFocusedLocateId) {
+                    mapView.controller.setZoom(17.5)
+                    mapView.controller.setCenter(currentPoint)
+                    lastFocusedLocateId = locateRequestId
+                }
             }
-            mapView.invalidate()
+                lastOverlaySignature = overlaySignature
+                mapView.invalidate()
+            }
         },
     )
+}
+
+private fun isNetworkAvailable(context: Context): Boolean {
+    val connectivity = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = connectivity.activeNetwork ?: return false
+    return connectivity.getNetworkCapabilities(network)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
 }
 
 private fun formatDistance(metres: Float): String =

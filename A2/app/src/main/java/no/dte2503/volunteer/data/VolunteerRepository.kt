@@ -1,5 +1,7 @@
 package no.dte2503.volunteer.data
 
+import kotlinx.serialization.Serializable
+
 // UI 层只依赖此边界；认证、网络、缓存或演示实现均封装在仓库内部。
 interface VolunteerRepository {
     val isRemote: Boolean
@@ -14,7 +16,7 @@ interface VolunteerRepository {
     suspend fun submitIncident(draft: IncidentDraft, photoBytes: ByteArray?, photoMimeType: String?): IncidentReceipt
 }
 
-data class VolunteerData(
+@Serializable data class VolunteerData(
     val profile: VolunteerProfile,
     val shift: Shift,
     val locations: List<ServiceLocation>,

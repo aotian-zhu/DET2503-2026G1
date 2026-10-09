@@ -143,7 +143,17 @@ private fun VolunteerApp(viewModel: MainViewModel = viewModel()) {
                     onOpenFunctions = { navController.openTopLevel("profile") },
                 )
             }
-            composable("map") { MapScreen(viewModel, state.tasks, state.currentPosition, state.locationPermissionDenied, state.selectedTaskId) }
+            composable("map") {
+                MapScreen(
+                    viewModel,
+                    state.tasks,
+                    state.currentPosition,
+                    state.locationPermissionDenied,
+                    state.locationError,
+                    state.locateRequestId,
+                    state.selectedTaskId,
+                )
+            }
             composable("tasks") {
                 TasksScreen(
                     viewModel = viewModel,
