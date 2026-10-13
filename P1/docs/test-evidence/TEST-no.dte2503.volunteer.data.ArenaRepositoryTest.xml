@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="no.dte2503.volunteer.data.ArenaRepositoryTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-13T15:59:44" hostname="DESKTOP-0DFHLE5" time="0.8">
+  <properties/>
+  <testcase name="typingDuringRemoteSendKeepsTheNewDraft" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.503"/>
+  <testcase name="cachedWeatherRemainsWhenExternalServiceFails" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.01"/>
+  <testcase name="messageDraftSurvivesReloadAndOnlySentTaskIsCleared" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.113"/>
+  <testcase name="failedRemoteSendKeepsMessageDraft" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.003"/>
+  <testcase name="unexpectedBackendAccountCannotReceiveQueuedReads" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.006"/>
+  <testcase name="reopenedBackendTaskCoalescesOfflineAndRetriesAfterFailure" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.031"/>
+  <testcase name="reopenedDemoTaskSurvivesRestartAndPreservesOtherTasks" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.007"/>
+  <testcase name="duplicateCheckInSurvivesRepositoryRecreation" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.011"/>
+  <testcase name="offlineUpdatesCoalesceAndRetryWithoutLosingLocalProgress" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.005"/>
+  <testcase name="failedDiskCommitDoesNotPublishTaskProgress" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.003"/>
+  <testcase name="pendingLocalChangesOverlayAnOlderServerSnapshot" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.0"/>
+  <testcase name="accountSwitchKeepsOutboxesSeparate" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.007"/>
+  <testcase name="reopeningUnknownTaskCannotChangeAssignments" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.006"/>
+  <testcase name="invalidCheckpointAndIncidentAreRejectedBeforeSaving" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.014"/>
+  <testcase name="demoChangesSurviveSerializationAndReload" classname="no.dte2503.volunteer.data.ArenaRepositoryTest" time="0.073"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

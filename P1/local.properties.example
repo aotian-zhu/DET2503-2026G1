@@ -1,0 +1,7 @@
+# Android Studio usually writes sdk.dir automatically. Use forward slashes on Windows.
+# sdk.dir=C:/Users/YOUR_NAME/AppData/Local/Android/Sdk
+
+# Optional. Leave these absent to use the self-contained volunteer demo.
+# Copy your A2 public client configuration here to enable account sign-in.
+# SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+# SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_ANON_CLIENT_KEY

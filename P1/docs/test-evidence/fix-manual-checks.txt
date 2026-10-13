@@ -1,0 +1,9 @@
+Date: 13 October 2026
+Patch: 0.5.1
+Reproduced a black launcher screen; UI hierarchy reported an unresponsive Android System UI.
+Pixel_10 AVD: graphics changed from auto to software; forced cold boot; original AVD config backed up.
+Cold launcher start after repair rendered the saved demo dashboard; 1/5 tasks completed remained intact.
+Existing A2 Supabase auth settings endpoint responded successfully; email login enabled.
+No volunteer passwords, account records, database schema or backend assignments were changed.
+Actual volunteer-account sign-in remains to be checked with the group account passwords.
+Installed-app account screen was visually checked after You -> Leave demo: email/password, Sign in to your team and Explore the volunteer demo are present.

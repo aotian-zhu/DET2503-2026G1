@@ -1,0 +1,200 @@
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:2: Warning: A newer version of com.android.application than 8.9.1 is available: 9.4.1. (There is also a newer version of 8.9.𝑥 available, if upgrading to 9.4.1 is difficult: 8.9.3) [AndroidGradlePluginVersion]
+agp = "8.9.1"
+      ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:2: Warning: A newer version of com.android.application than 8.9.1 is available: 9.4.1. (There is also a newer version of 8.9.𝑥 available, if upgrading to 9.4.1 is difficult: 8.9.3) [AndroidGradlePluginVersion]
+agp = "8.9.1"
+      ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:2: Warning: A newer version of com.android.application than 8.9.1 is available: 9.4.1. (There is also a newer version of 8.9.𝑥 available, if upgrading to 9.4.1 is difficult: 8.9.3) [AndroidGradlePluginVersion]
+agp = "8.9.1"
+      ~~~~~~~
+
+   Explanation for issues of type "AndroidGradlePluginVersion":
+   This detector looks for usage of the Android Gradle Plugin where the
+   version you are using is not the current stable release. Using older
+   versions is fine, and there are cases where you deliberately want to stick
+   with an older version. However, you may simply not be aware that a more
+   recent version is available, and that is what this lint check helps find.
+
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:4: Warning: A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.19.1 [GradleDependency]
+coreKtx = "1.15.0"
+          ~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:4: Warning: A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.19.1 [GradleDependency]
+coreKtx = "1.15.0"
+          ~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:4: Warning: A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.19.1 [GradleDependency]
+coreKtx = "1.15.0"
+          ~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-compose than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-compose than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-compose than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:5: Warning: A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.8.7 is available: 2.11.0 [GradleDependency]
+lifecycle = "2.8.7"
+            ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:6: Warning: A newer version of androidx.activity:activity-compose than 1.10.1 is available: 1.13.0 [GradleDependency]
+activityCompose = "1.10.1"
+                  ~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:6: Warning: A newer version of androidx.activity:activity-compose than 1.10.1 is available: 1.13.0 [GradleDependency]
+activityCompose = "1.10.1"
+                  ~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:6: Warning: A newer version of androidx.activity:activity-compose than 1.10.1 is available: 1.13.0 [GradleDependency]
+activityCompose = "1.10.1"
+                  ~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:7: Warning: A newer version of androidx.compose:compose-bom than 2025.03.01 is available: 2026.09.00 [GradleDependency]
+composeBom = "2025.03.01"
+             ~~~~~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:7: Warning: A newer version of androidx.compose:compose-bom than 2025.03.01 is available: 2026.09.00 [GradleDependency]
+composeBom = "2025.03.01"
+             ~~~~~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:7: Warning: A newer version of androidx.compose:compose-bom than 2025.03.01 is available: 2026.09.00 [GradleDependency]
+composeBom = "2025.03.01"
+             ~~~~~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:8: Warning: A newer version of androidx.navigation:navigation-compose than 2.8.9 is available: 2.10.2 [GradleDependency]
+navigation = "2.8.9"
+             ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:8: Warning: A newer version of androidx.navigation:navigation-compose than 2.8.9 is available: 2.10.2 [GradleDependency]
+navigation = "2.8.9"
+             ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:8: Warning: A newer version of androidx.navigation:navigation-compose than 2.8.9 is available: 2.10.2 [GradleDependency]
+navigation = "2.8.9"
+             ~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:10: Warning: A newer version of com.google.android.gms:play-services-location than 21.3.0 is available: 21.4.0 [GradleDependency]
+playServicesLocation = "21.3.0"
+                       ~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:10: Warning: A newer version of com.google.android.gms:play-services-location than 21.3.0 is available: 21.4.0 [GradleDependency]
+playServicesLocation = "21.3.0"
+                       ~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\gradle\libs.versions.toml:10: Warning: A newer version of com.google.android.gms:play-services-location than 21.3.0 is available: 21.4.0 [GradleDependency]
+playServicesLocation = "21.3.0"
+                       ~~~~~~~~
+
+   Explanation for issues of type "GradleDependency":
+   This detector looks for usages of libraries where the version you are using
+   is not the current stable release. Using older versions is fine, and there
+   are cases where you deliberately want to stick with an older version.
+   However, you may simply not be aware that a more recent version is
+   available, and that is what this lint check helps find.
+
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\Components.kt:26: Warning: Modifier parameter should be the first optional parameter [ModifierParameter from androidx.compose.ui]
+fun InfoCard(highlighted: Boolean = false, onClick: (() -> Unit)? = null, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+                                                                          ~~~~~~~~
+
+   Explanation for issues of type "ModifierParameter":
+   The first (or only) Modifier parameter in a Composable function should
+   follow the following rules:
+   - Be named modifier
+   - Have a type of Modifier
+   - Either have no default value, or have a default value of Modifier
+   - If optional, be the first optional parameter in the parameter list
+
+   Vendor: Jetpack Compose
+   Identifier: androidx.compose.ui
+   Feedback: https://issuetracker.google.com/issues/new?component=612128
+
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\AndroidManifest.xml:11: Warning: The attribute android:allowBackup is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute android:dataExtractionRules specifying an @xml resource which configures cloud backups and device transfers on Android 12 and higher. [DataExtractionRules]
+        android:allowBackup="false"
+                             ~~~~~
+
+   Explanation for issues of type "DataExtractionRules":
+   Before Android 12, the attributes android:allowBackup and
+   android:fullBackupContent were used to configure all forms of backup,
+   including cloud backups, device-to-device transfers and adb backup.
+
+   In Android 12 and higher, these attributes have been deprecated and will
+   only apply to cloud backups. You should instead use the attribute
+   android:dataExtractionRules, specifying an @xml resource that configures
+   which files to back up, for cloud backups and for device-to-device
+   transfers, separately. If your minSdkVersion supports older versions,
+   you'll still want to specify an android:fullBackupContent resource if the
+   default behavior is not right for your app.
+
+   https://developer.android.com/about/versions/12/backup-restore#xml-changes
+   https://goo.gle/DataExtractionRules
+
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\HomeScreen.kt:135: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+            TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://open-meteo.com/"))) }, contentPadding = PaddingValues(0.dp)) { Text("Weather by Open-Meteo", style = MaterialTheme.typography.labelSmall) }
+                                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\MapScreen.kt:95: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+                    Text("© OpenStreetMap contributors", style = MaterialTheme.typography.labelSmall, modifier = Modifier.clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.openstreetmap.org/copyright"))) }.padding(horizontal = 8.dp, vertical = 4.dp))
+                                                                                                                                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\MapScreen.kt:102: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+                        val intent = if (message.contains("denied") || message.contains("permission")) Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}")) else Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                                                                                                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\WorkflowScreen.kt:74: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+                        TextButton(onClick = { context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}"))) }) { Text("Open app settings") }
+                                                                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UseKtx":
+   The Android KTX libraries decorates the Android platform SDK as well as
+   various libraries with more convenient extension functions available from
+   Kotlin, allowing you to use default parameters, named parameters, and
+   more.
+
+   Available options:
+
+   **remove-defaults** (default is true):
+   Whether to skip arguments that match the defaults provided by the extension.
+
+   Extensions often provide default values for some of the parameters. For example:
+   ```kotlin
+   fun Path.readLines(charset: Charset = Charsets.UTF_8): List<String> { return Files.readAllLines(this, charset) }
+   ```
+   This lint check will by default automatically omit parameters that match the default, so if your code was calling ```kotlin
+   Files.readAllLines(file, Charset.UTF_8)
+   ```
+   lint would replace this with
+   ```kotlin
+   file.readLines()
+   ```
+   rather than
+   ```kotlin
+   file.readLines(Charset.UTF_8
+   ```
+   You can turn this behavior off using this option.
+
+   To configure this option, use a `lint.xml` file with an <option> like this:
+
+   ```xml
+   <lint>
+       <issue id="UseKtx">
+           <option name="remove-defaults" value="true" />
+       </issue>
+   </lint>
+   ```
+
+   **require-present** (default is true):
+   Whether to only offer extensions already available.
+
+   This option lets you only have lint suggest extension replacements if those extensions are already available on the class path (in other words, you're already depending on the library containing the extension method.)
+
+   To configure this option, use a `lint.xml` file with an <option> like this:
+
+   ```xml
+   <lint>
+       <issue id="UseKtx">
+           <option name="require-present" value="true" />
+       </issue>
+   </lint>
+   ```
+
+0 errors, 33 warnings

@@ -1,0 +1,7 @@
+Duration: 00:10:00.05, start: 0.000000, bitrate: 155 kb/s
+Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709/unknown/unknown, progressive), 1280x720, 63 kb/s, 24 fps, 24 tbr, 12288 tbn (default)
+Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, mono, fltp, 85 kb/s (default)
+Stream #0:2[0x3](eng): Data: bin_data (text / 0x74786574), 0 kb/s
+Full audio/video decode: passed, no errors
+Footage: recorded emulator + identified manual test captures
+Narration: synthesized Microsoft Zira voice
