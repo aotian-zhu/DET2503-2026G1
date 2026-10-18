@@ -35,9 +35,19 @@ OSM tiles are loaded as the user browses and cached by osmdroid. There is no bul
 
 ## Location and permissions
 
-Location is requested when the volunteer taps **Locate me**. Both precise and approximate grants are accepted. The tracker uses Android's GPS/network providers, checks device location settings, rejects old last-known fixes, listens while the map is visible, and stops on pause/disposal. A no-fix timeout, denial or disabled provider produces a useful message while task markers remain accessible.
+Location is requested when the volunteer taps **Locate me**. Both precise and approximate grants are accepted. A single `ForegroundLocation` subscription uses Android's GPS/network providers across the signed-in app, rejects fixes over 30 seconds old and clears an active fix after 60 seconds without updates. It stops on activity pause/disposal. A no-fix timeout, denial or disabled provider produces a useful message while task markers remain accessible.
 
-Distances use a tested Haversine calculation and are explicitly labeled **straight-line**. The app does not promise pedestrian routes, indoor positions or travel times. GPS coordinates are held in memory and are never sent to the weather service or Supabase.
+Distances use tested Haversine geometry and are explicitly **straight-line**. Walking estimates use 4 km/h, are limited to 20 km and need accuracy of 100 m or better. They are not routed directions. GPS coordinates are held in memory and are never sent to the weather service or Supabase.
+
+`ArrivalMonitor` evaluates one persisted location ID per account/demo. Entry requires distance plus accuracy ≤150 m, and confirmed exit requires distance minus accuracy ≥200 m. Boundary/uncertain updates retain the entry latch to prevent repeat alerts. Coarse fixes cannot confirm entry. Changing the owner/target or switching between real and practice position resets the detector. This is foreground geofencing; no background location permission or GeofencingClient registration is used.
+
+Demo walk coordinates exist only in transient ViewModel state and are explicitly identified throughout the interface. They pause the hardware location subscription, do not change the system GPS provider and cannot be enabled for a real account. They support rehearsal outside Narvik without misrepresenting device location.
+
+## New persistent data in 0.5.2
+
+New fields have defaults and retain schema version 1, so existing 0.5.1 files remain readable. Each account/demo keeps up to 40 task-change events and its arrival target. An account also keeps its last successful refresh time; task cards and activity entries show whether the current task status is queued. Activity is this device's history, not a global coordinator feed.
+
+Device test observations are explicitly manual and device-wide. A saved result requires a valid scenario and 3–2000 characters describing the observed behavior. Each result includes the app version and timestamp. Export includes device metadata, steps, expected/observed results and NOT RUN for untouched or older-version scenarios. No automatic success result is generated and no report is uploaded by the app.
 
 ## Visual design
 

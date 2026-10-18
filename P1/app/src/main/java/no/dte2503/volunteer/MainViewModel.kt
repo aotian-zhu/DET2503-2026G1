@@ -26,6 +26,9 @@ private data class TransientState(
     val sendingMessage: Boolean = false,
     val submitting: Boolean = false,
     val busyTasks: Set<String> = emptySet(),
+    val demoWalkPointId: String? = null,
+    val locationRefreshToken: Int = 0,
+    val arrival: ArrivalResult = ArrivalResult(),
 )
 
 data class AppUiState(
@@ -57,7 +60,16 @@ data class AppUiState(
     val messageDrafts: Map<String, String> = emptyMap(),
     val incidentCount: Int = 0,
     val checkInCount: Int = 0,
+    val demoWalkPointId: String? = null,
+    val locationRefreshToken: Int = 0,
+    val arrival: ArrivalResult = ArrivalResult(),
+    val arrivalLocationId: String? = null,
+    val taskUpdates: List<TaskUpdate> = emptyList(),
+    val pendingTaskIds: Set<String> = emptySet(),
+    val lastSyncedAtMillis: Long? = null,
+    val deviceChecks: Map<String, DeviceTestObservation> = emptyMap(),
 ) {
+    val locationIsPreview get() = isDemoMode && demoWalkPointId != null
     val tasks get() = data.tasks
     val profile get() = data.profile
     val shift get() = data.shift
@@ -73,6 +85,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dependencies = RepositoryProvider.create(application)
     private val repository = dependencies.repository
     private val transient = MutableStateFlow(TransientState())
+    private val arrivalMonitor = ArrivalMonitor()
     val uiState = combine(repository.local, repository.online, repository.refreshStatus, transient) { saved, online, refresh, temp ->
         AppUiState(
             isInitialized = temp.initialized, isLoading = temp.loading,
@@ -81,17 +94,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             isOnline = online, refreshing = refresh.refreshing, pendingCount = saved.pendingCount,
             syncError = refresh.syncError, weatherError = refresh.weatherError,
             errorMessage = temp.error, actionMessage = temp.notice, data = saved.activeData ?: MockRepository.data,
-            currentPosition = temp.position, accuracyMetres = temp.accuracyMetres, locationMessage = temp.locationMessage,
+            currentPosition = demoWalkPoints.firstOrNull { it.id == temp.demoWalkPointId && saved.sessionMode == SessionMode.DEMO }?.position ?: temp.position,
+            accuracyMetres = if (temp.demoWalkPointId != null && saved.sessionMode == SessionMode.DEMO) 5f else temp.accuracyMetres,
+            locationMessage = temp.locationMessage,
             selectedTaskId = temp.selectedTaskId, selectedLocationId = temp.selectedLocationId,
             selectedConversationTaskId = temp.conversationTaskId, isSendingMessage = temp.sendingMessage,
             isSubmittingWorkflow = temp.submitting, busyTasks = temp.busyTasks,
             weather = saved.weather, themeMode = saved.themeMode, incidentDraft = saved.incidentDraft,
             messageDrafts = saved.messageDrafts,
             incidentCount = saved.demoIncidents.size, checkInCount = saved.demoCheckIns.size,
+            demoWalkPointId = temp.demoWalkPointId, locationRefreshToken = temp.locationRefreshToken,
+            arrival = temp.arrival, arrivalLocationId = saved.arrivalLocationId,
+            taskUpdates = saved.taskUpdates,
+            pendingTaskIds = if (saved.sessionMode == SessionMode.REMOTE) saved.activeAccount?.pendingTaskStatuses?.keys.orEmpty() else emptySet(),
+            lastSyncedAtMillis = saved.activeAccount?.lastSyncedAtMillis,
+            deviceChecks = saved.deviceChecks,
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, AppUiState())
 
     init {
+        viewModelScope.launch {
+            repository.local.map { saved ->
+                Triple(saved.sessionMode, saved.activeUserId, saved.activeData?.locations?.firstOrNull { it.id == saved.arrivalLocationId })
+            }.distinctUntilChanged().collect { updateArrival() }
+        }
         viewModelScope.launch {
             try { repository.initialize() } catch (error: Exception) { showError(error) }
             transient.update { it.copy(initialized = true) }
@@ -124,11 +150,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearError() = transient.update { it.copy(error = null) }
     fun clearActionMessage() = transient.update { it.copy(notice = null) }
     fun notifyUser(message: String) = transient.update { it.copy(notice = message) }
-    fun setCurrentPosition(latitude: Double, longitude: Double, accuracy: Float = 0f) = transient.update {
-        it.copy(position = GeoPointData(latitude, longitude), accuracyMetres = accuracy, locationMessage = null)
+    fun setCurrentPosition(latitude: Double, longitude: Double, accuracy: Float = 0f) {
+        transient.update { it.copy(position = GeoPointData(latitude, longitude), accuracyMetres = accuracy, locationMessage = if (it.demoWalkPointId == null) null else it.locationMessage) }
+        updateArrival()
     }
-    fun setLocationMessage(message: String?, clearPosition: Boolean = false) = transient.update {
-        it.copy(locationMessage = message, position = if (clearPosition) null else it.position)
+    fun setLocationMessage(message: String?, clearPosition: Boolean = false) {
+        if (transient.value.demoWalkPointId != null) return
+        transient.update { it.copy(locationMessage = message, position = if (clearPosition) null else it.position, accuracyMetres = if (clearPosition) null else it.accuracyMetres) }
+        updateArrival()
+    }
+    fun requestLocationRefresh() { setDemoWalk(null); transient.update { it.copy(locationRefreshToken = it.locationRefreshToken + 1) } }
+    fun setDemoWalk(id: String?) {
+        if (id != null && repository.local.value.sessionMode != SessionMode.DEMO) return
+        if (id != null && demoWalkPoints.none { it.id == id }) return
+        transient.update { it.copy(demoWalkPointId = id, position = null, accuracyMetres = null, locationMessage = if (id == null) "Finding your phone's location…" else null) }
+        updateArrival()
+    }
+    fun watchArrival(id: String?) = runAction { repository.watchArrival(id); updateArrival() }
+    private fun updateArrival() {
+        val saved = repository.local.value
+        val temp = transient.value
+        val target = saved.activeData?.locations?.firstOrNull { it.id == saved.arrivalLocationId }
+        val practice = demoWalkPoints.firstOrNull { it.id == temp.demoWalkPointId && saved.sessionMode == SessionMode.DEMO }
+        val key = if (saved.sessionMode == SessionMode.NONE || target == null) null else "${saved.sessionMode}:${saved.activeUserId}:${target.id}:${practice != null}"
+        val result = arrivalMonitor.evaluate(key, target?.position, practice?.position ?: temp.position, if (practice != null) 5f else temp.accuracyMetres)
+        transient.update { it.copy(arrival = result, notice = if (result.entered) "${if (practice != null) "Practice arrival" else "You are nearby"} · ${target?.name}" else it.notice) }
+    }
+    fun saveDeviceCheck(id: String, observed: String, passed: Boolean) = runAction {
+        repository.saveDeviceCheck(id, observed, passed, BuildConfig.VERSION_NAME)
+        transient.update { it.copy(notice = "Your observed test result was saved.") }
     }
     fun selectTask(id: String?) = transient.update { it.copy(selectedTaskId = id, selectedLocationId = null) }
     fun selectLocation(id: String?) = transient.update { it.copy(selectedLocationId = id, selectedTaskId = null) }

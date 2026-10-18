@@ -59,6 +59,11 @@ fun HomeScreen(model: MainViewModel, onOpenTasks: () -> Unit, onOpenFunctions: (
                         Text("Meet at ${meeting?.name ?: "your assigned meeting point"}", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
+                if (meeting != null) state.currentPosition?.let { current ->
+                    val distance = distanceMetres(current, meeting.position)
+                    Text("${formatDistance(distance)} to your meeting point · ${walkingEstimate(distance, state.accuracyMetres)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+                }
+                if (state.arrivalLocationId != null) Text(arrivalDescription(state), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
             }
         }
         item { WeatherCard(state, model::refresh) }
@@ -84,13 +89,14 @@ fun HomeScreen(model: MainViewModel, onOpenTasks: () -> Unit, onOpenFunctions: (
             }
         }
         if (state.currentPosition != null && nearest != null) item {
-            InfoCard(onClick = { onViewOnMap(nearest.task.id) }) {
+            InfoCard(onClick = { onViewOnMap(nearest.task.id) }, modifier = Modifier.testTag("nearest_task_card")) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Rounded.NearMe, null, tint = MaterialTheme.colorScheme.secondary)
                     Column(Modifier.padding(start = 12.dp).weight(1f)) {
                         Text("Closest unfinished task", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
                         Text(nearest.task.title, style = MaterialTheme.typography.titleMedium)
                         Text("${nearest.distanceMetres?.let(::formatDistance)} away · straight-line distance", style = MaterialTheme.typography.bodySmall)
+                        nearest.distanceMetres?.let { Text(walkingEstimate(it, state.accuracyMetres), style = MaterialTheme.typography.bodySmall) }
                     }
                 }
             }
@@ -126,6 +132,12 @@ private fun WeatherCard(state: AppUiState, onRefresh: () -> Unit) {
             Text(if (state.refreshing) "Checking current conditions…" else "Connect and refresh to load current conditions.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
         } else {
             Text("${weatherDescription(weather.weatherCode)} · Feels like ${weather.feelsLikeC.roundToInt()}° · Wind ${weather.windKmh.roundToInt()} km/h", style = MaterialTheme.typography.bodyMedium)
+            Text(when {
+                weather.feelsLikeC <= 0 -> "For an outdoor assignment, bring warm layers and check the briefing for icy surfaces."
+                weather.windKmh >= 30 -> "Windy conditions: take your event jacket and check the outdoor briefing."
+                weather.weatherCode >= 51 -> "Wet or snowy conditions: bring a weatherproof layer for outdoor tasks."
+                else -> "Check your briefing and pack an extra layer before heading outdoors."
+            }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
             val time = Instant.ofEpochMilli(weather.fetchedAtMillis).atZone(ZoneId.of("Europe/Oslo")).format(DateTimeFormatter.ofPattern("dd MMM · HH:mm", Locale.UK))
             val cached = !state.isOnline || state.weatherError != null || System.currentTimeMillis() - weather.fetchedAtMillis > 30 * 60_000
             Text("${if (cached) "Saved reading" else "Updated"} $time (Narvik time)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

@@ -26,6 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import no.dte2503.volunteer.ui.screens.*
 import no.dte2503.volunteer.ui.theme.VolunteerHubTheme
+import no.dte2503.volunteer.platform.ForegroundLocation
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,10 +80,11 @@ private fun VolunteerApp(model: MainViewModel, state: AppUiState) {
         LoginScreen(state, model::login, model::enterDemo)
         return
     }
+    ForegroundLocation(model, state)
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val route = backStack?.destination?.route ?: "home"
-    val workflow = route.startsWith("actions")
+    val workflow = route.startsWith("actions") || route == "device-checks"
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(state.errorMessage, state.actionMessage) {
         val error = state.errorMessage
@@ -109,6 +111,12 @@ private fun VolunteerApp(model: MainViewModel, state: AppUiState) {
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 )
+                if (state.locationIsPreview) Surface(color = MaterialTheme.colorScheme.tertiaryContainer) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Practice position · Phone GPS paused", Modifier.weight(1f).testTag("practice_banner"), style = MaterialTheme.typography.labelMedium)
+                        TextButton(onClick = model::requestLocationRefresh) { Text("Use GPS") }
+                    }
+                }
                 if (!state.isOnline || state.pendingCount > 0 || state.syncError != null) {
                     Surface(color = MaterialTheme.colorScheme.secondaryContainer) {
                         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -149,8 +157,9 @@ private fun VolunteerApp(model: MainViewModel, state: AppUiState) {
             composable("tasks") { TasksScreen(model, { taskId -> model.openConversation(taskId); nav.openTopLevel("inbox") }, { taskId -> model.selectTask(taskId); nav.openTopLevel("map") }) }
             composable("map") { MapScreen(model) }
             composable("inbox") { InboxScreen(model) }
-            composable("profile") { ProfileScreen(model, model::logout) }
+            composable("profile") { ProfileScreen(model, model::logout) { nav.navigate("device-checks") } }
             composable("actions/{section}") { entry -> WorkflowScreen(model, entry.arguments?.getString("section") ?: "checkin") { nav.popBackStack() } }
+            composable("device-checks") { DeviceChecksScreen(model) { nav.popBackStack() } }
         }
     }
 }

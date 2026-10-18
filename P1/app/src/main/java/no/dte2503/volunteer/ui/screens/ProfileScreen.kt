@@ -17,9 +17,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import no.dte2503.volunteer.MainViewModel
 import no.dte2503.volunteer.data.ThemeMode
+import no.dte2503.volunteer.BuildConfig
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun ProfileScreen(model: MainViewModel, onLogout: () -> Unit) {
+fun ProfileScreen(model: MainViewModel, onLogout: () -> Unit, onDeviceChecks: () -> Unit) {
     val state by model.uiState.collectAsStateWithLifecycle()
     LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(18.dp), modifier = Modifier.fillMaxSize().testTag("profile_screen")) {
         item {
@@ -62,6 +66,31 @@ fun ProfileScreen(model: MainViewModel, onLogout: () -> Unit) {
         }
         item {
             InfoCard {
+                Text("Saved data and connection", style = MaterialTheme.typography.titleMedium)
+                Text(when {
+                    state.isDemoMode -> "Demo changes are saved on this phone. They are not sent to the event service."
+                    state.refreshing -> "Synchronizing saved updates…"
+                    state.pendingCount > 0 -> "${state.pendingCount} saved task or read updates waiting to sync."
+                    state.syncError != null -> state.syncError.orEmpty()
+                    else -> "All task and read updates are synchronized."
+                }, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("sync_status"))
+                if (!state.isDemoMode) state.lastSyncedAtMillis?.let { time ->
+                    Text("Last successful account refresh · ${Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM HH:mm"))}", style = MaterialTheme.typography.bodySmall)
+                }
+                Text(if (state.isOnline) "Internet available" else "Offline · Your saved shift remains available", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
+                if (!state.isDemoMode) TextButton(onClick = model::refresh, enabled = state.isOnline && !state.refreshing, modifier = Modifier.testTag("retry_sync")) { Text("Refresh and retry sync") }
+            }
+        }
+        item {
+            InfoCard(onClick = onDeviceChecks, modifier = Modifier.testTag("open_device_checks")) {
+                Text("Check this device", style = MaterialTheme.typography.titleMedium)
+                Text("Record your expected and observed test results, then export the report.", style = MaterialTheme.typography.bodyMedium)
+                val current = state.deviceChecks.values.filter { it.appVersion == BuildConfig.VERSION_NAME }
+                Text("${current.size} of 8 scenarios recorded for ${BuildConfig.VERSION_NAME} →", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            }
+        }
+        item {
+            InfoCard {
                 Text("Make yourself at home", style = MaterialTheme.typography.titleMedium)
                 Text("Choose your appearance", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -78,6 +107,6 @@ fun ProfileScreen(model: MainViewModel, onLogout: () -> Unit) {
             }
         }
         item { OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth().testTag("sign_out")) { Text(if (state.isDemoMode) "Leave demo" else "Sign out") } }
-        item { Text("Arena Companion v0.5\nProgramming for Mobile Devices 2 · P1", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        item { Text("Arena Companion ${BuildConfig.VERSION_NAME}\nProgramming for Mobile Devices 2 · P1", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.testTag("app_version")) }
     }
 }

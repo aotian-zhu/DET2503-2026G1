@@ -95,7 +95,7 @@ playServicesLocation = "21.3.0"
    However, you may simply not be aware that a more recent version is
    available, and that is what this lint check helps find.
 
-C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\Components.kt:26: Warning: Modifier parameter should be the first optional parameter [ModifierParameter from androidx.compose.ui]
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\Components.kt:28: Warning: Modifier parameter should be the first optional parameter [ModifierParameter from androidx.compose.ui]
 fun InfoCard(highlighted: Boolean = false, onClick: (() -> Unit)? = null, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
                                                                           ~~~~~~~~
 
@@ -131,13 +131,19 @@ C:\Users\Balint\DET2503-2026G1\P1\app\src\main\AndroidManifest.xml:11: Warning: 
    https://developer.android.com/about/versions/12/backup-restore#xml-changes
    https://goo.gle/DataExtractionRules
 
-C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\HomeScreen.kt:135: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\HomeScreen.kt:147: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
             TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://open-meteo.com/"))) }, contentPadding = PaddingValues(0.dp)) { Text("Weather by Open-Meteo", style = MaterialTheme.typography.labelSmall) }
                                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\MapScreen.kt:95: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\MapMarker.kt:16: Warning: Use the KTX function createBitmap instead? [UseKtx]
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\MapMarker.kt:31: Warning: Use the KTX extension function Bitmap.toDrawable instead? [UseKtx]
+    return BitmapDrawable(context.resources, bitmap)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\MapScreen.kt:93: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
                     Text("© OpenStreetMap contributors", style = MaterialTheme.typography.labelSmall, modifier = Modifier.clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.openstreetmap.org/copyright"))) }.padding(horizontal = 8.dp, vertical = 4.dp))
                                                                                                                                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\MapScreen.kt:102: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\MapScreen.kt:100: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
                         val intent = if (message.contains("denied") || message.contains("permission")) Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}")) else Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                                                                                                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\screens\WorkflowScreen.kt:74: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
@@ -197,4 +203,4 @@ C:\Users\Balint\DET2503-2026G1\P1\app\src\main\java\no\dte2503\volunteer\ui\scre
    </lint>
    ```
 
-0 errors, 33 warnings
+0 errors, 35 warnings

@@ -1,5 +1,7 @@
 # Ten-minute demonstration guide
 
+**For the final 0.5.2 S24 Ultra recording, use [PHONE_RECORDING_GUIDE.md](PHONE_RECORDING_GUIDE.md).** It includes the exact segment timing, what to show and say, permission/offline/sync checks, and actual expected/observed device results. The older sequence below is retained as background for the earlier emulator reference recording.
+
 Use a fresh demo session on an emulator or phone. Enable internet initially. For a useful local GPS demonstration, set the emulator position to **68.4384, 17.4272** (Narvik town centre). Explain that demo operations are fictional and that the weather is current, not a 2029 forecast.
 
 | Time | Show | Explain |

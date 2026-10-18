@@ -2,7 +2,7 @@
 
 An Android volunteer companion for **Narvik 2029, the FIS Alpine World Ski Championships**. P1 extends the A2 application with a consistent Arctic blue interface, persistent local data, foreground GPS, proximity features and cached current weather.
 
-The current patch build is **0.5.1**. It adds **Reopen task** for accidental completions. The APK supplied on this computer is configured for the existing A2 Supabase project, with account sign-in and demo access available together. Volunteer passwords and accounts were not changed.
+The current build is **0.5.2** (version code 7). It adds walking estimates, custom map markers/accuracy circles, foreground arrival reminders, continuous foreground GPS across the app, task activity, clearer sync status and an on-device expected/observed test log. **Reopen task** remains available for accidental completions. The supplied APK preserves the existing A2 Supabase configuration, with account sign-in and demo access together. No live accounts, passwords, database schema or assignments were changed.
 
 Open **this `P1` directory** as the Android Studio project. A2 stays in its original directory. P1 uses the application ID `no.dte2503.volunteer.p1`, so both versions can be installed together.
 
@@ -10,11 +10,11 @@ Open **this `P1` directory** as the Android Studio project. A2 stays in its orig
 
 Run the app and tap **Explore the volunteer demo**. No password or API key is required. The demo contains a volunteer profile, five tasks, a shift, Narvik meeting points, announcements and coordinator conversations. Demo shifts, people and operations are fictional; coordinates are approximate.
 
-- **Today:** shift summary, completion progress, current Narvik weather, next task and closest unfinished task after a GPS fix.
+- **Today:** shift summary, completion progress, current Narvik weather/preparation suggestions, meeting-point distance, walking estimate and closest unfinished task after a GPS fix.
 - **Tasks:** All/Open/Done filters, task progression, **Reopen task** to undo a completion, map links and coordinator conversations.
-- **Map:** OpenStreetMap, selectable task/facility points, current position, nearest-first lists and straight-line distances.
-- **Inbox:** announcements, persistent read state, task-linked conversations and unfinished messages saved per task and volunteer.
-- **You:** volunteer roles, work access, offline information and saved system/light/dark appearance.
+- **Map:** OpenStreetMap, numbered task/check markers, lettered facilities, current position/accuracy, nearest-first lists, straight-line distances, walking estimates and a 150 m foreground arrival zone. **Demo walk** uses labelled practice positions so a student outside Narvik can rehearse proximity.
+- **Inbox:** announcements, persistent read state, task-linked conversations, per-task/account message drafts and the last 40 **My task updates**.
+- **You:** roles, work access, saved appearance, connection/sync state and **Check this device**, where the student records actual expected/observed results and exports a versioned report.
 - **On-site essentials:** QR check-in with duplicate protection, validated checkpoint entry, incident reports, saved drafts and optional photos.
 
 The demo clearly identifies operations that stay on the device. The weather integration is real: it requests current Narvik conditions from [Open-Meteo](https://open-meteo.com/en/docs). It is not a weather forecast for the event in 2029.
@@ -46,6 +46,8 @@ gradlew.bat :app:connectedDebugAndroidTest
 
 The debug APK is built at `app/build/outputs/apk/debug/app-debug.apk`. A convenience copy is included in `deliverables` after validation.
 
+The current installable copy is **[ArenaCompanion-v0.5.2-debug.apk](deliverables/ArenaCompanion-v0.5.2-debug.apk)**. For the student's Galaxy S24 Ultra, follow [update and recording setup](docs/S24_ULTRA_UPDATE.md), then the [timed ten-minute phone guide with narration](docs/PHONE_RECORDING_GUIDE.md). Install it over the existing P1 app to retain saved data. Version 0.5.2 keeps schema-1 data readable through default values for the new fields.
+
 ## Emulator location and permissions
 
 Use the emulator's Extended Controls → Location and set **latitude 68.4384, longitude 17.4272**. Open Map and tap **Locate me**. Choose precise or approximate location. The app remains useful if permission is denied or device location is off. With Android's device bridge:
@@ -55,6 +57,10 @@ adb emu geo fix 17.4272 68.4384
 ```
 
 The command order is longitude, then latitude. GPS accuracy is shown and distances are explicitly straight-line. The app does not track in the background or send the volunteer's GPS position to a server.
+
+After permission is granted, one GPS subscription runs across the app while the activity is visible and stops on pause. Last-known fixes older than 30 seconds are rejected; a position without an update for 60 seconds is cleared. Map → Facilities → select a point → **Watch arrival** saves one arrival target per account/demo. Entry requires distance plus accuracy ≤150 m; exit requires distance minus accuracy ≥200 m, avoiding repeated boundary alerts. Accuracy worse than 100 m cannot confirm entry. This is foreground geofencing with an in-app reminder, not a background GeofencingClient service.
+
+Walking estimates assume 4 km/h along the straight-line distance (maximum 20 km), with a suitably precise fix. They are not routed directions; terrain, snow and access restrictions can increase travel time. **Demo walk** pauses real GPS display and uses clearly marked practice coordinates. It is available only in demo and does not persist a movement history.
 
 The camera permission is requested only when scanning a QR code. Selecting an incident photo uses Android's document picker, without broad storage permission. JPEG, PNG and WebP up to 5 MB are accepted.
 
@@ -100,7 +106,8 @@ The existing Supabase email-authentication settings endpoint was checked and is 
 - [A2 repository update and feature reconciliation](docs/REPOSITORY_UPDATE.md)
 - [Expected and observed test results](docs/TEST_REPORT.md)
 - [Ten-minute demonstration guide](docs/DEMO_GUIDE.md)
-- [Recorded ten-minute walkthrough](deliverables/ArenaCompanion-P1-10min-demo.mp4), with [recording notes](docs/VIDEO_WALKTHROUGH.md).
+- **[S24 Ultra update instructions](docs/S24_ULTRA_UPDATE.md)** and **[timed phone recording guide: what to show and say](docs/PHONE_RECORDING_GUIDE.md)**.
+- [Earlier reference walkthrough](deliverables/ArenaCompanion-P1-10min-demo.mp4), with [recording notes](docs/VIDEO_WALKTHROUGH.md). It predates 0.5.2; replace it with the student's final phone recording before hand-in.
 - Screenshots and build/device-test evidence in `docs`.
 
 To create a clean submission ZIP without local credentials, build caches or emulator files:
@@ -109,19 +116,20 @@ To create a clean submission ZIP without local credentials, build caches or emul
 .\tools\package.ps1 -TeamName G1
 ```
 
-The result is `deliverables/DTE_2503_26_G1_P1.zip`. Adjust `G1` to your actual group naming convention. The archive includes the Android Studio project, debug APK, README, test documentation and recorded walkthrough. Review the video before handing it in. Its narration is synthesized; use the guide to record your own explanation if your group or teacher prefers a student presentation.
+The result is `deliverables/DTE_2503_26_G1_P1.zip`. Adjust `G1` to your group naming convention. The archive includes the Android Studio project, current APK, README, test documentation and video present in deliverables when packaging runs. The retained video is an earlier emulator reference with synthesized narration. Use the new phone guide to record the final 0.5.2 presentation, export the phone's actual test observations, then regenerate the ZIP so it contains both. GitHub sharing is separate from course submission.
 
 ## Known limitations
 
 - The volunteer dataset is a realistic course scenario, not the organizer's actual 2029 assignments or venue plan.
 - Only previously browsed OSM tiles are cached. Offline markers and descriptions do not guarantee offline map imagery at every zoom/location.
-- GPS can be unavailable, inaccurate or approximate; there is no indoor positioning or route calculation. Tracking stops when the map is not visible.
+- GPS can be unavailable, inaccurate or approximate; there is no indoor positioning or route calculation. Tracking and arrival reminders stop when the app activity is not visible. They do not use background location or system push notifications.
 - Backend sync runs while the app is active, not as a background service. P1 handles its own queued writes; it does not implement multi-user conflict resolution.
 - Remote messages/incident submissions need a connection. Their A2 RPCs do not have idempotency keys, so automatic retries could duplicate submissions; the app does not queue them.
 - There are no push notifications, live coordinator dashboard, registration flow or general account editor in this milestone. Inbox updates load on refresh.
 - Photo access can be revoked outside the app; choose the file again if it cannot be opened. There is no photo resizing.
 - The interface is English. The app has not been validated on every OEM device, screen size or accessibility configuration.
-- The debug build is a course prototype, not a production deployment. The included video uses synthesized narration and recorded emulator footage; review it before submission.
+- Walking times are rough straight-line estimates, not pedestrian routes. Demo walk positions must be identified as practice in any presentation.
+- The debug build is a course prototype. The retained earlier video does not show 0.5.2; the student still needs to record the final phone video and physical-device results using the provided guide.
 
 ## Credits
 

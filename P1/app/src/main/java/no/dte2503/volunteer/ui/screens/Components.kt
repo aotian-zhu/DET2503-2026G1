@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import no.dte2503.volunteer.data.TaskStatus
+import no.dte2503.volunteer.data.ArrivalState
+import no.dte2503.volunteer.AppUiState
 import no.dte2503.volunteer.ui.theme.*
 
 @Composable
@@ -58,4 +60,18 @@ fun StatusPill(status: TaskStatus) {
     val color = if (status == TaskStatus.DONE) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer
     val text = when (status) { TaskStatus.TODO -> "To do"; TaskStatus.IN_PROGRESS -> "In progress"; TaskStatus.DONE -> "Completed" }
     Surface(shape = RoundedCornerShape(8.dp), color = color) { Text(text, Modifier.padding(horizontal = 10.dp, vertical = 5.dp), style = MaterialTheme.typography.labelSmall) }
+}
+
+fun taskStatusLabel(status: TaskStatus) = when (status) { TaskStatus.TODO -> "To do"; TaskStatus.IN_PROGRESS -> "In progress"; TaskStatus.DONE -> "Completed" }
+
+fun arrivalDescription(state: AppUiState): String {
+    val name = state.locations.firstOrNull { it.id == state.arrivalLocationId }?.name ?: "Meeting point"
+    val description = when (state.arrival.state) {
+        ArrivalState.OFF -> "Reminder off"
+        ArrivalState.WAITING -> "Waiting for a recent position"
+        ArrivalState.OUTSIDE -> "Outside the 150 m arrival zone"
+        ArrivalState.UNCERTAIN -> "Near the boundary or GPS too imprecise to confirm arrival"
+        ArrivalState.INSIDE -> "Inside the 150 m arrival zone"
+    }
+    return "${if (state.locationIsPreview) "Practice · " else ""}$name · $description"
 }

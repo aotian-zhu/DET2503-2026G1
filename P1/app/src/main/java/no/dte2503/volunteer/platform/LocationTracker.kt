@@ -24,6 +24,7 @@ class LocationTracker(
     private val handler = Handler(Looper.getMainLooper())
     private var receivedFix = false
     private val timeout = Runnable { if (!receivedFix) onProblem("No recent location fix. Check location settings and try again.", true) }
+    private val staleTimeout = Runnable { onProblem("Your location has not updated recently. Tap Locate me to try again.", true) }
     fun hasPermission() = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     @SuppressLint("MissingPermission") // hasPermission checks precise and approximate access before either provider.
@@ -36,15 +37,18 @@ class LocationTracker(
         try {
             val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER).filter { manager.isProviderEnabled(it) }
             if (providers.isEmpty()) { onProblem("No location provider is available on this device.", true); return }
-            providers.mapNotNull { manager.getLastKnownLocation(it) }.filter { SystemClock.elapsedRealtimeNanos() - it.elapsedRealtimeNanos in 0..120_000_000_000L }.maxByOrNull { it.elapsedRealtimeNanos }?.let(::onLocationChanged)
+            providers.mapNotNull { manager.getLastKnownLocation(it) }.filter { SystemClock.elapsedRealtimeNanos() - it.elapsedRealtimeNanos in 0..30_000_000_000L }.maxByOrNull { it.elapsedRealtimeNanos }?.let(::onLocationChanged)
             providers.forEach { manager.requestLocationUpdates(it, 5_000L, 2f, this, Looper.getMainLooper()) }
             handler.postDelayed(timeout, 20_000)
         } catch (_: SecurityException) { onProblem("Location permission changed. Tap Locate me to try again.", true) }
     }
-    fun stop() { handler.removeCallbacks(timeout); manager.removeUpdates(this) }
+    fun stop() { handler.removeCallbacks(timeout); handler.removeCallbacks(staleTimeout); manager.removeUpdates(this) }
     override fun onLocationChanged(location: Location) {
+        if (!location.hasAccuracy() || SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos !in 0..30_000_000_000L) return
         receivedFix = true
         handler.removeCallbacks(timeout)
+        handler.removeCallbacks(staleTimeout)
+        handler.postDelayed(staleTimeout, 60_000)
         onFix(location)
     }
     override fun onProviderDisabled(provider: String) { if (!LocationManagerCompat.isLocationEnabled(manager)) onProblem("Device location is switched off. Enable it in location settings.", true) }

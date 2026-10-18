@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="no.dte2503.volunteer.data.ArrivalMonitorTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-18T11:49:33" hostname="DESKTOP-0DFHLE5" time="0.007">
+  <properties/>
+  <testcase name="missingOrInvalidAccuracyCannotInventAnArrival" classname="no.dte2503.volunteer.data.ArrivalMonitorTest" time="0.003"/>
+  <testcase name="entryOnlyAlertsOnceUntilAConfirmedExit" classname="no.dte2503.volunteer.data.ArrivalMonitorTest" time="0.001"/>
+  <testcase name="walkingTimeHasBoundsAndHonestPrecisionHandling" classname="no.dte2503.volunteer.data.ArrivalMonitorTest" time="0.001"/>
+  <testcase name="temporaryMissingPositionDoesNotRepeatAnInsideAlert" classname="no.dte2503.volunteer.data.ArrivalMonitorTest" time="0.001"/>
+  <testcase name="coarseAndUncertainLocationsCannotClaimArrival" classname="no.dte2503.volunteer.data.ArrivalMonitorTest" time="0.0"/>
+  <testcase name="switchingAccountOrPreviewResetsTheDetector" classname="no.dte2503.volunteer.data.ArrivalMonitorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

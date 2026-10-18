@@ -40,7 +40,7 @@ class ArenaRepository(
         val fresh = backend.loadVolunteerData()
         store.update { saved ->
             val previous = saved.accounts[fresh.profile.id]
-            val account = previous?.copy(data = mergePending(fresh, previous)) ?: CachedAccount(fresh)
+            val account = previous?.copy(data = mergePending(fresh, previous), lastSyncedAtMillis = System.currentTimeMillis()) ?: CachedAccount(fresh, lastSyncedAtMillis = System.currentTimeMillis())
             saved.copy(sessionMode = SessionMode.REMOTE, activeUserId = fresh.profile.id, accounts = saved.accounts + (fresh.profile.id to account))
         }
         mutableRefresh.value = mutableRefresh.value.copy(syncError = null)
@@ -67,16 +67,35 @@ class ArenaRepository(
             val task = requireNotNull(saved.activeData?.tasks?.firstOrNull { it.id == taskId }) { "This task is no longer assigned to you." }
             val status = change(task.status)
             if (status == task.status) return@update saved
+            val event = TaskUpdate(UUID.randomUUID().toString(), task.id, task.title, task.status, status, System.currentTimeMillis())
             updateActive(saved) { data ->
                 data.copy(tasks = data.tasks.map { if (it.id == taskId) it.copy(status = status) else it })
             }.let { updated ->
-                if (saved.sessionMode != SessionMode.REMOTE) updated else {
+                if (saved.sessionMode != SessionMode.REMOTE) updated.copy(demoTaskUpdates = (listOf(event) + saved.demoTaskUpdates).take(40)) else {
                     val id = requireNotNull(saved.activeUserId)
                     val account = requireNotNull(updated.accounts[id])
-                    updated.copy(accounts = updated.accounts + (id to account.copy(pendingTaskStatuses = account.pendingTaskStatuses + (taskId to status))))
+                    updated.copy(accounts = updated.accounts + (id to account.copy(pendingTaskStatuses = account.pendingTaskStatuses + (taskId to status), taskUpdates = (listOf(event) + account.taskUpdates).take(40))))
                 }
             }
         }
+    }
+
+    suspend fun watchArrival(locationId: String?) = store.update { saved ->
+        check(saved.sessionMode != SessionMode.NONE) { "Open a volunteer session first." }
+        require(locationId == null || saved.activeData?.locations?.any { it.id == locationId } == true) { "Choose a location from your saved shift." }
+        if (saved.sessionMode == SessionMode.REMOTE) {
+            val id = requireNotNull(saved.activeUserId)
+            val account = requireNotNull(saved.accounts[id])
+            saved.copy(accounts = saved.accounts + (id to account.copy(arrivalLocationId = locationId)))
+        } else saved.copy(demoArrivalLocationId = locationId)
+    }
+
+    suspend fun saveDeviceCheck(id: String, observed: String, passed: Boolean, version: String) = store.update { saved ->
+        check(saved.sessionMode != SessionMode.NONE) { "Open a volunteer session first." }
+        require(deviceTestScenarios.any { it.id == id }) { "Choose a valid test scenario." }
+        require(observed.trim().length in 3..2000) { "Write the result you observed using 3–2000 characters." }
+        val result = DeviceTestObservation(id, observed.trim(), passed, version, System.currentTimeMillis())
+        saved.copy(deviceChecks = saved.deviceChecks + (id to result))
     }
 
     suspend fun markAnnouncementRead(id: String) = store.update { saved ->
@@ -204,7 +223,7 @@ class ArenaRepository(
                     check(fresh.profile.id == userId) { "The account changed. Please sign in again." }
                     store.update { saved ->
                         val current = requireNotNull(saved.accounts[userId])
-                        saved.copy(accounts = saved.accounts + (userId to current.copy(data = mergePending(fresh, current))))
+                        saved.copy(accounts = saved.accounts + (userId to current.copy(data = mergePending(fresh, current), lastSyncedAtMillis = System.currentTimeMillis())))
                     }
                 }
                 mutableRefresh.value = mutableRefresh.value.copy(syncError = null)

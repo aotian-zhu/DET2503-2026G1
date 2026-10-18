@@ -19,7 +19,24 @@ Get-ChildItem -LiteralPath $taskProjectRoot -File -Recurse -Force | ForEach-Obje
     }
 }
 $taskZip = Join-Path $taskOutputRoot "DTE_2503_26_${TeamName}_P1.zip"
-Compress-Archive -LiteralPath $taskCopyRoot -DestinationPath $taskZip -Force
+# Explicit forward-slash entry names keep ZIPs portable, including from Windows PowerShell 5.
+# Build in the ignored staging directory, then replace the previous archive only on success.
+Add-Type -AssemblyName System.IO.Compression
+$taskTemporaryZip = Join-Path $taskStage 'submission.zip'
+$taskZipStream = [IO.File]::Open($taskTemporaryZip, [IO.FileMode]::CreateNew)
+$taskArchive = [IO.Compression.ZipArchive]::new($taskZipStream, [IO.Compression.ZipArchiveMode]::Create, $false)
+try {
+    Get-ChildItem -LiteralPath $taskCopyRoot -File -Recurse -Force | ForEach-Object {
+        $taskEntryRelative = $_.FullName.Substring($taskCopyRoot.Length + 1)
+        $taskEntryName = 'P1/' + $taskEntryRelative.Replace('\', '/')
+        $taskEntry = $taskArchive.CreateEntry($taskEntryName, [IO.Compression.CompressionLevel]::Optimal)
+        $taskSourceStream = [IO.File]::OpenRead($_.FullName)
+        $taskEntryStream = $taskEntry.Open()
+        try { $taskSourceStream.CopyTo($taskEntryStream) }
+        finally { $taskSourceStream.Dispose(); $taskEntryStream.Dispose() }
+    }
+} finally { $taskArchive.Dispose(); $taskZipStream.Dispose() }
+Move-Item -LiteralPath $taskTemporaryZip -Destination $taskZip -Force
 # The only recursive cleanup is the freshly created staging folder, checked below.
 $taskResolvedStage = [IO.Path]::GetFullPath($taskStage)
 $taskAllowedPrefix = [IO.Path]::GetFullPath($taskStagingRoot) + [IO.Path]::DirectorySeparatorChar

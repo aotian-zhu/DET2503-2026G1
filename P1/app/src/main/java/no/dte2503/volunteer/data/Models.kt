@@ -27,6 +27,8 @@ data class TaskWithDistance(val task: VolunteerTask, val distanceMetres: Float?)
 @Serializable enum class SessionMode { NONE, DEMO, REMOTE }
 @Serializable enum class ThemeMode { SYSTEM, LIGHT, DARK }
 @Serializable data class WeatherSnapshot(val temperatureC: Double, val feelsLikeC: Double, val windKmh: Double, val weatherCode: Int, val observedAt: String, val fetchedAtMillis: Long)
+@Serializable data class TaskUpdate(val id: String, val taskId: String, val title: String, val previousStatus: TaskStatus, val status: TaskStatus, val changedAtMillis: Long)
+@Serializable data class DeviceTestObservation(val scenarioId: String, val observed: String, val passed: Boolean, val appVersion: String, val recordedAtMillis: Long)
 
 // Each backend account owns its cache and outbox; switching accounts cannot leak data.
 @Serializable data class CachedAccount(
@@ -35,6 +37,9 @@ data class TaskWithDistance(val task: VolunteerTask, val distanceMetres: Float?)
     val pendingReadIds: Set<String> = emptySet(),
     val incidentDraft: IncidentDraft = IncidentDraft(),
     val messageDrafts: Map<String, String> = emptyMap(),
+    val taskUpdates: List<TaskUpdate> = emptyList(),
+    val arrivalLocationId: String? = null,
+    val lastSyncedAtMillis: Long? = null,
 )
 
 @Serializable data class LocalState(
@@ -49,6 +54,9 @@ data class TaskWithDistance(val task: VolunteerTask, val distanceMetres: Float?)
     val demoMessageDrafts: Map<String, String> = emptyMap(),
     val weather: WeatherSnapshot? = null,
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val demoTaskUpdates: List<TaskUpdate> = emptyList(),
+    val demoArrivalLocationId: String? = null,
+    val deviceChecks: Map<String, DeviceTestObservation> = emptyMap(),
 ) {
     val activeAccount get() = activeUserId?.let(accounts::get)
     val activeData get() = if (sessionMode == SessionMode.REMOTE) activeAccount?.data else demoData
@@ -59,4 +67,6 @@ data class TaskWithDistance(val task: VolunteerTask, val distanceMetres: Float?)
         SessionMode.NONE -> emptyMap()
     }
     val pendingCount get() = if (sessionMode == SessionMode.REMOTE) activeAccount?.let { it.pendingTaskStatuses.size + it.pendingReadIds.size } ?: 0 else 0
+    val taskUpdates get() = if (sessionMode == SessionMode.REMOTE) activeAccount?.taskUpdates.orEmpty() else demoTaskUpdates
+    val arrivalLocationId get() = if (sessionMode == SessionMode.REMOTE) activeAccount?.arrivalLocationId else demoArrivalLocationId
 }

@@ -1,5 +1,7 @@
 # Recorded P1 walkthrough
 
+**This is an earlier reference video, not the final 0.5.2 recording.** Version 0.5.2 adds arrival reminders, walking estimates, task history and the device test log. Use the [S24 Ultra recording guide](PHONE_RECORDING_GUIDE.md) to record these with your own phone/voice, then replace the MP4 and regenerate the submission ZIP.
+
 The submission includes `deliverables/ArenaCompanion-P1-10min-demo.mp4`: a ten-minute walkthrough of the running debug application on the temporary API 37 emulator used for testing.
 
 The screen footage shows actual app interactions. Recorded sections are edited into chapters, with reading time for the explanation. Restart waiting is condensed; the offline chapter uses unmodified screenshots from the manual offline restart and GPS tests. These are identified in the chapter. The screenshots are from an earlier demo run, so progress counters can differ from the later recording. Chapter cards explain the functionality alongside the portrait screen. Narration is synthesized with the installed Microsoft Zira voice, and that is stated in the video. It does not impersonate a student or event organizer.

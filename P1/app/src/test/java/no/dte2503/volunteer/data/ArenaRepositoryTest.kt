@@ -214,6 +214,70 @@ class ArenaRepositoryTest {
         assertTrue(merged.announcements.first { it.id == "announcement_01" }.isRead)
     }
 
+    @Test fun taskActivityRecordsRealChangesAndSurvivesReload() = runTest {
+        val store = MemoryStore(LocalState(sessionMode = SessionMode.DEMO))
+        val repo = repository(store, MutableStateFlow(false))
+        repo.advanceTask("task_03")
+        repo.advanceTask("task_03")
+        repo.advanceTask("task_03") // A second completion must not invent another event.
+        repo.reopenTask("task_03")
+        val restored = Json.decodeFromString<LocalState>(Json.encodeToString(store.state.value))
+        assertEquals(3, restored.taskUpdates.size)
+        assertEquals(TaskStatus.DONE, restored.taskUpdates.first().previousStatus)
+        assertEquals(TaskStatus.IN_PROGRESS, restored.taskUpdates.first().status)
+        assertEquals("task_03", restored.taskUpdates.first().taskId)
+        assertEquals(0, restored.pendingCount)
+        repeat(50) { repo.advanceTask("task_03"); repo.reopenTask("task_03") }
+        assertEquals(40, store.state.value.taskUpdates.size)
+    }
+
+    @Test fun arrivalSelectionAndActivityAreIsolatedBetweenAccounts() = runTest {
+        val store = MemoryStore()
+        val backend = FakeBackend()
+        val repo = repository(store, MutableStateFlow(true), backend)
+        repo.signIn("first@example.org", "password")
+        repo.watchArrival("volunteer_hub")
+        repo.advanceTask("task_03")
+        assertTrue(runCatching { repo.watchArrival("unknown-place") }.isFailure)
+        repo.signOut()
+        backend.data = MockRepository.data.copy(profile = MockRepository.profile.copy(id = "second-user"))
+        repo.signIn("second@example.org", "password")
+        assertNull(store.state.value.arrivalLocationId)
+        assertTrue(store.state.value.taskUpdates.isEmpty())
+        val first = store.state.value.accounts[MockRepository.profile.id]!!
+        assertEquals("volunteer_hub", first.arrivalLocationId)
+        assertEquals(1, first.taskUpdates.size)
+        assertNotNull(first.lastSyncedAtMillis)
+    }
+
+    @Test fun manualDeviceResultsRequireAnObservationAndAreVersioned() = runTest {
+        val store = MemoryStore(LocalState(sessionMode = SessionMode.DEMO))
+        val repo = repository(store, MutableStateFlow(false))
+        assertTrue(runCatching { repo.saveDeviceCheck("navigation", " ", true, "0.5.2") }.isFailure)
+        assertTrue(runCatching { repo.saveDeviceCheck("unknown", "Opened correctly", true, "0.5.2") }.isFailure)
+        assertTrue(store.state.value.deviceChecks.isEmpty())
+        repo.saveDeviceCheck("navigation", " All five screens opened on this emulator. ", true, "0.5.2")
+        repo.watchArrival("volunteer_hub")
+        val restored = Json.decodeFromString<LocalState>(Json.encodeToString(store.state.value))
+        assertEquals("volunteer_hub", restored.arrivalLocationId)
+        assertEquals("All five screens opened on this emulator.", restored.deviceChecks["navigation"]!!.observed)
+        val report = deviceTestReport("0.5.2", "Test emulator", restored.deviceChecks)
+        assertTrue(report.contains("Navigation: PASS"))
+        assertTrue(report.contains("Backend synchronization: NOT RUN"))
+        assertFalse(deviceTestReport("0.5.3", "Test emulator", restored.deviceChecks).contains(": PASS"))
+    }
+
+    @Test fun version051SnapshotLoadsWithoutNewFields() {
+        val old = """{"schemaVersion":1,"sessionMode":"DEMO","themeMode":"DARK","demoMessageDrafts":{"task_02":"Keep this draft"}}"""
+        val restored = Json.decodeFromString<LocalState>(old)
+        assertEquals(SessionMode.DEMO, restored.sessionMode)
+        assertEquals(ThemeMode.DARK, restored.themeMode)
+        assertEquals("Keep this draft", restored.messageDrafts["task_02"])
+        assertTrue(restored.taskUpdates.isEmpty())
+        assertTrue(restored.deviceChecks.isEmpty())
+        assertNull(restored.arrivalLocationId)
+    }
+
     @Test fun invalidCheckpointAndIncidentAreRejectedBeforeSaving() = runTest {
         val store = MemoryStore(LocalState(sessionMode = SessionMode.DEMO))
         val repo = repository(store, MutableStateFlow(false))

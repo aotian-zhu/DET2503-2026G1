@@ -50,6 +50,8 @@ fun TasksScreen(model: MainViewModel, onContactCoordinator: (String) -> Unit, on
                     }
                 }
                 item.distanceMetres?.let { Text("${formatDistance(it)} away · straight-line", color = MaterialTheme.colorScheme.secondary, style = MaterialTheme.typography.labelMedium) }
+                item.distanceMetres?.let { Text(walkingEstimate(it, state.accuracyMetres), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                if (task.id in state.pendingTaskIds) Text("Saved on this phone · Waiting to sync", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.testTag("pending_${task.id}"))
                 Text(task.details, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (task.status != TaskStatus.DONE) Button(onClick = { model.advanceTask(task.id) }, enabled = task.id !in state.busyTasks, modifier = Modifier.weight(1f).testTag("advance_${task.id}")) {

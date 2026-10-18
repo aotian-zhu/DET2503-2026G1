@@ -1,0 +1,7 @@
+Test date: 18 October 2026
+Final APK: 0.5.2 / version code 7 / no.dte2503.volunteer.p1
+Controlled update checks used the final APK over 0.5/code 5 and an explicitly installed 0.5.1/code 6 baseline.
+The 0.5.1 and final 0.5.2 APK signatures were verified and matched.
+No uninstall/clear-data operation was used. All task statuses, DARK preference and a saved task_02 message draft were preserved.
+The fixture was prepared only in a temporary read-only emulator. The physical S24 Ultra update is a student step.
+Final APK SHA-256: EF298B8E241FEBF18D6285A4DD5A278F60DAF0C1BE00F6F25DA20C97BA91C99D

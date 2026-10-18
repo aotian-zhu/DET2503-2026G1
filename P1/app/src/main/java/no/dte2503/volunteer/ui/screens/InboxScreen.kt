@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -19,13 +20,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import no.dte2503.volunteer.MainViewModel
 import no.dte2503.volunteer.data.MessagePriority
+import no.dte2503.volunteer.AppUiState
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun InboxScreen(model: MainViewModel) {
     val state by model.uiState.collectAsStateWithLifecycle()
     val selected = state.selectedConversationTaskId
+    var showTaskUpdates by rememberSaveable { mutableStateOf(false) }
     if (selected != null) { ConversationView(model, selected); return }
-    LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxSize().testTag("inbox_screen")) {
+    Column(Modifier.fillMaxSize().testTag("inbox_screen")) {
+        Row(Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = !showTaskUpdates, onClick = { showTaskUpdates = false }, label = { Text("Team updates") }, modifier = Modifier.testTag("team_updates_filter"))
+            FilterChip(selected = showTaskUpdates, onClick = { showTaskUpdates = true }, label = { Text("My task updates") }, modifier = Modifier.testTag("task_updates_filter"))
+        }
+        if (showTaskUpdates) TaskUpdates(state)
+        else LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxSize()) {
         item { Text("Stay in the loop.", style = MaterialTheme.typography.headlineMedium); Text("Briefings, updates and the people on your team.", Modifier.padding(top = 6.dp), color = MaterialTheme.colorScheme.onSurfaceVariant) }
         item { SectionTitle("Announcements") }
         if (state.announcements.isEmpty()) item { InfoCard { Text("No new announcements. Refresh for the latest team updates.") } }
@@ -64,6 +76,26 @@ fun InboxScreen(model: MainViewModel) {
             InfoCard {
                 Text("Need immediate help?", style = MaterialTheme.typography.titleMedium)
                 Text("Contact your on-site coordinator using the radio or contact details given at your briefing.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+    }
+}
+
+@Composable
+private fun TaskUpdates(state: AppUiState) {
+    LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxSize().testTag("task_updates_list")) {
+        item {
+            Text("Your task activity", style = MaterialTheme.typography.headlineSmall)
+            Text(if (state.isDemoMode) "Your last 40 demo changes, saved on this phone." else "Your last 40 changes on this phone. Offline task changes sync when you reconnect.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (state.taskUpdates.isEmpty()) item { InfoCard { Text("No task changes yet. Start, complete or reopen one of your tasks.") } }
+        items(state.taskUpdates, key = { it.id }) { update ->
+            InfoCard(modifier = Modifier.testTag("task_update_${update.id}")) {
+                Text(update.title, style = MaterialTheme.typography.titleMedium)
+                Text("${taskStatusLabel(update.previousStatus)} → ${taskStatusLabel(update.status)}", style = MaterialTheme.typography.bodyMedium)
+                Text(Instant.ofEpochMilli(update.changedAtMillis).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM · HH:mm")), style = MaterialTheme.typography.bodySmall)
+                Text(if (state.isDemoMode) "Saved on this device" else if (update.taskId in state.pendingTaskIds) "Latest status waiting to sync" else "Latest status synchronized", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
             }
         }
     }
